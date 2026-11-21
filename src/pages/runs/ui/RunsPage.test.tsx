@@ -1,11 +1,12 @@
 import { StrictMode } from 'react'
 import { BrowserRouter } from 'react-router'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { afterAll, afterEach, assert, beforeAll, describe, expect, it } from 'vitest'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { afterAll, afterEach, assert, beforeAll, describe, expect, it, vi } from 'vitest'
 import { RunsPage } from './RunsPage'
 
 afterEach(() => {
   cleanup()
+  vi.useRealTimers()
   window.history.replaceState(null, '', '/')
 })
 
@@ -42,26 +43,52 @@ it('recovers from a failed request when Retry is pressed', async () => {
   expect(window.location.search).toBe('?mockError=once')
 })
 
+it('shows typed text immediately and filters only after a pause following the last change', async () => {
+  renderRunsPage()
+  const search = await screen.findByRole<HTMLInputElement>('searchbox')
+  vi.useFakeTimers()
+
+  fireEvent.change(search, { target: { value: 'web' } })
+  act(() => { vi.advanceTimersByTime(200) })
+  fireEvent.change(search, { target: { value: 'checkout' } })
+  expect(search.value).toBe('checkout')
+  expect(screen.getAllByRole('listitem')).toHaveLength(6)
+
+  fireEvent.click(screen.getByRole('button', { name: 'Failed' }))
+  act(() => { vi.advanceTimersByTime(299) })
+  expect(screen.getAllByRole('listitem')).toHaveLength(2)
+  act(() => { vi.advanceTimersByTime(1) })
+  expect(within(screen.getByRole('listitem')).getByText('Verify checkout totals')).toBeDefined()
+  expect(window.location.search).toBe('?status=failed')
+
+  fireEvent.change(search, { target: { value: '' } })
+  expect(screen.getAllByRole('listitem')).toHaveLength(2)
+})
+
 it('combines repository and name searches with the status filter and resets both controls', async () => {
   renderRunsPage()
 
   const search = await screen.findByRole<HTMLInputElement>('searchbox', { name: 'Search runs' })
   fireEvent.change(search, { target: { value: '  WEB-plat  ' } })
-  expect(screen.getAllByRole('listitem')).toHaveLength(3)
+  await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(3))
 
   fireEvent.click(screen.getByRole('button', { name: 'Failed' }))
   expect(screen.getAllByRole('listitem')).toHaveLength(1)
   expect(within(screen.getByRole('listitem')).getByText('Check keyboard navigation')).toBeDefined()
 
   fireEvent.change(search, { target: { value: 'checkout' } })
-  expect(within(screen.getByRole('listitem')).getByText('Verify checkout totals')).toBeDefined()
+  await screen.findByRole('button', { name: 'Verify checkout totals' })
 
   fireEvent.click(screen.getByRole('button', { name: 'Succeeded' }))
   expect(screen.getByText('No matching runs')).toBeDefined()
   expect(screen.queryByRole('listitem')).toBeNull()
+  vi.useFakeTimers()
+  fireEvent.change(search, { target: { value: 'payments' } })
   fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
   expect(search.value).toBe('')
   expect(screen.getByRole('button', { name: 'All', pressed: true })).toBeDefined()
+  expect(screen.getAllByRole('listitem')).toHaveLength(6)
+  act(() => { vi.advanceTimersByTime(300) })
   expect(screen.getAllByRole('listitem')).toHaveLength(6)
 })
 
@@ -74,6 +101,7 @@ it('restores the linked status and follows browser back and forward with a local
   expect(screen.getAllByRole('listitem')).toHaveLength(2)
 
   fireEvent.change(search, { target: { value: 'web-platform' } })
+  await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
   expect(window.location.search).toBe('?source=review&status=failed')
   expect(within(screen.getByRole('listitem')).getByText('Check keyboard navigation')).toBeDefined()
 
@@ -122,6 +150,7 @@ describe('run details dialog', () => {
     renderRunsPage()
     const search = await screen.findByRole<HTMLInputElement>('searchbox')
     fireEvent.change(search, { target: { value: 'payments' } })
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(1))
     fireEvent.click(screen.getByRole('button', { name: 'Verify checkout totals' }))
 
     const dialog = screen.getByRole('dialog', { name: 'Verify checkout totals' })
@@ -174,7 +203,7 @@ describe('run details dialog', () => {
     window.history.back()
     const activeFilter = await screen.findByRole('button', { name: 'Running', pressed: true })
     expect(document.activeElement).toBe(activeFilter)
-    if (query) expect(screen.getByText('No matching runs')).toBeDefined()
+    if (query) await screen.findByText('No matching runs')
     expect(screen.queryByRole('button', runButton)).toBeNull()
     expect(screen.queryByRole('dialog')).toBeNull()
 

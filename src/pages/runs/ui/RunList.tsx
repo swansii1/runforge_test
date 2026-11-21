@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Run } from "../../../entities/run";
 import { RunListItem } from "./RunListItem";
 import styles from "./RunList.module.css";
@@ -9,7 +10,7 @@ type RunListProps = {
   onOpen: (id: string, trigger: HTMLButtonElement) => void;
 };
 
-export function RunList({ runs, onOpen }: RunListProps) {
+export const RunList = memo(function RunList({ runs, onOpen }: RunListProps) {
   return (
     <>
       <div className={styles.columns} aria-hidden="true">
@@ -24,4 +25,4 @@ export function RunList({ runs, onOpen }: RunListProps) {
       </ul>
     </>
   );
-}
+});
