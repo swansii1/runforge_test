@@ -47,6 +47,7 @@ it("shows loading and renders all six runs with distinct zero and missing durati
   });
   const list = screen.getByRole("list", { name: "Runs" });
   expect(within(list).getAllByRole("listitem")).toHaveLength(6);
+  expect(document.activeElement).not.toBe(screen.getByRole("searchbox"));
 
   const checksumRow = within(list).getByText("Check migration checksum").closest("li");
   const dependenciesRow = within(list).getByText("Update dashboard dependencies").closest("li");
@@ -77,13 +78,16 @@ it("recovers from a failed request when Retry is pressed", async () => {
   });
   screen.getByRole("alert");
   expect(window.location.search).toBe("?mockError=once");
-  fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+  const retryButton = screen.getByRole("button", { name: "Retry" });
+  retryButton.focus();
+  fireEvent.click(retryButton);
   expect(screen.getByText("Loading runs…")).toBeDefined();
   await act(async () => {
     retryRequest.resolve(createMockRuns());
   });
   const list = screen.getByRole("list", { name: "Runs" });
   expect(within(list).getAllByRole("listitem")).toHaveLength(6);
+  expect(document.activeElement).toBe(screen.getByRole("searchbox"));
   expect(screen.queryByRole("alert")).toBeNull();
   expect(window.location.search).toBe("?mockError=once");
 });
@@ -135,7 +139,10 @@ it("combines repository and name searches with the status filter and resets both
   expect(screen.queryByRole("listitem")).toBeNull();
   vi.useFakeTimers();
   fireEvent.change(search, { target: { value: "payments" } });
-  fireEvent.click(screen.getByRole("button", { name: "Reset filters" }));
+  const resetButton = screen.getByRole("button", { name: "Reset filters" });
+  resetButton.focus();
+  fireEvent.click(resetButton);
+  expect(document.activeElement).toBe(search);
   expect(search.value).toBe("");
   expect(screen.getByRole("button", { name: "All", pressed: true })).toBeDefined();
   expect(screen.getAllByRole("listitem")).toHaveLength(6);

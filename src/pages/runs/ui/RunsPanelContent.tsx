@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router";
 import { filterRuns } from "../model/filterRuns";
 import { useRunDetails } from "../model/useRunDetails";
@@ -24,6 +24,27 @@ export function RunsPanelContent() {
     [runs, debouncedSearchQuery, status],
   );
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const focusSearchAfterRetry = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!focusSearchAfterRetry.current || request.status === "loading") return;
+    focusSearchAfterRetry.current = false;
+    if (request.status === "success" && document.activeElement === document.body) {
+      searchInputRef.current?.focus();
+    }
+  }, [request.status]);
+
+  function handleRetry() {
+    focusSearchAfterRetry.current = true;
+    retry();
+  }
+
+  function handleResetFilters() {
+    resetFilters();
+    searchInputRef.current?.focus();
+  }
+
   if (request.status === "loading") {
     return (
       <p className={styles.message} role="status">
@@ -36,7 +57,7 @@ export function RunsPanelContent() {
     return (
       <div className={styles.message} role="alert">
         <p>Couldn’t load runs.</p>
-        <button type="button" onClick={retry}>
+        <button type="button" onClick={handleRetry}>
           Retry
         </button>
       </div>
@@ -48,6 +69,7 @@ export function RunsPanelContent() {
       <RunFilters
         searchQuery={searchQuery}
         status={status}
+        searchInputRef={searchInputRef}
         activeStatusRef={activeStatusRef}
         onSearchChange={updateSearchQuery}
         onStatusChange={setStatus}
@@ -57,7 +79,7 @@ export function RunsPanelContent() {
       ) : (
         <div className={styles.message}>
           <p role="status">No matching runs</p>
-          <button type="button" onClick={resetFilters}>
+          <button type="button" onClick={handleResetFilters}>
             Reset filters
           </button>
         </div>
