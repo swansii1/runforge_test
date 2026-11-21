@@ -106,9 +106,16 @@ describe('run details dialog', () => {
   beforeAll(() => {
     // jsdom exposes the dialog element but does not implement showModal().
     HTMLDialogElement.prototype.showModal = function () { this.open = true }
+    HTMLDialogElement.prototype.close = function () {
+      this.open = false
+      this.dispatchEvent(new Event('close'))
+    }
   })
 
-  afterAll(() => { Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal') })
+  afterAll(() => {
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal')
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'close')
+  })
 
   it('opens the selected run and keeps the filtered list after the dialog closes', async () => {
     window.history.replaceState(null, '', '/?status=failed')
@@ -121,7 +128,7 @@ describe('run details dialog', () => {
     expect(within(dialog).getByText('Loaded checkout fixtures.', { exact: false }).textContent)
       .toBe('Loaded checkout fixtures.\nExpected total 19.99, received 20.00.\nOne test failed.')
     expect(within(dialog).getByText('Checkout rounds the discounted total incorrectly.')).toBeDefined()
-    fireEvent(dialog, new Event('close'))
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }))
 
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(search.value).toBe('payments')

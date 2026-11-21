@@ -52,9 +52,9 @@ export function ModalDialog({ title, onClose, children }: ModalDialogProps) {
     >
       <header className={styles.header}>
         <h2 id={titleId}>{title}</h2>
-        <form method="dialog">
-          <button type="submit">Close</button>
-        </form>
+        <button className={styles.closeButton} type="button" aria-label="Close" onClick={() => dialogRef.current?.close()}>
+          <span aria-hidden="true">×</span>
+        </button>
       </header>
       {children}
     </dialog>
