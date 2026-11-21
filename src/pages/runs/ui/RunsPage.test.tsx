@@ -101,3 +101,29 @@ it('shows all runs for an unknown status', async () => {
   await screen.findByRole('button', { name: 'All', pressed: true })
   expect(screen.getAllByRole('listitem')).toHaveLength(6)
 })
+
+it('opens the selected run and keeps the filtered list after the dialog closes', async () => {
+  // jsdom exposes the dialog element but does not implement showModal().
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  try {
+    window.history.replaceState(null, '', '/?status=failed')
+    renderRunsPage()
+    const search = await screen.findByRole<HTMLInputElement>('searchbox')
+    fireEvent.change(search, { target: { value: 'payments' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify checkout totals' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Verify checkout totals' })
+    expect(within(dialog).getByText('Loaded checkout fixtures.', { exact: false }).textContent)
+      .toBe('Loaded checkout fixtures.\nExpected total 19.99, received 20.00.\nOne test failed.')
+    expect(within(dialog).getByText('Checkout rounds the discounted total incorrectly.')).toBeDefined()
+    fireEvent(dialog, new Event('close'))
+
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(search.value).toBe('payments')
+    expect(window.location.search).toBe('?status=failed')
+    expect(screen.getByRole('button', { name: 'Failed', pressed: true })).toBeDefined()
+    expect(within(screen.getByRole('listitem')).getByText('Verify checkout totals')).toBeDefined()
+  } finally {
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal')
+  }
+})
