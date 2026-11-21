@@ -5,7 +5,7 @@ import styles from "./RunList.module.css";
 
 type RunListItemProps = {
   run: Run;
-  onOpen: (id: string) => void;
+  onOpen: (id: string, trigger: HTMLButtonElement) => void;
 };
 
 export function RunListItem({ run, onOpen }: RunListItemProps) {
@@ -18,7 +18,7 @@ export function RunListItem({ run, onOpen }: RunListItemProps) {
           aria-haspopup="dialog"
           onClick={(event) => {
             event.currentTarget.focus();
-            onOpen(run.id);
+            onOpen(run.id, event.currentTarget);
           }}
         >
           {run.name}

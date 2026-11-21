@@ -1,19 +1,15 @@
-import { useState } from "react";
 import type { Run } from "../../../entities/run";
-import { RunDetailsDialog } from "./RunDetailsDialog";
 import { RunListItem } from "./RunListItem";
 import styles from "./RunList.module.css";
 
 const columnLabels = ["Run", "Status", "Created", "Duration"];
 
-export function RunList({ runs }: { runs: Run[] }) {
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const selectedRun = runs.find((run) => run.id === selectedRunId);
+type RunListProps = {
+  runs: Run[];
+  onOpen: (id: string, trigger: HTMLButtonElement) => void;
+};
 
-  if (selectedRunId !== null && !selectedRun) {
-    setSelectedRunId(null);
-  }
-
+export function RunList({ runs, onOpen }: RunListProps) {
   return (
     <>
       <div className={styles.columns} aria-hidden="true">
@@ -23,15 +19,9 @@ export function RunList({ runs }: { runs: Run[] }) {
       </div>
       <ul className={styles.list} aria-label="Runs">
         {runs.map((run) => (
-          <RunListItem key={run.id} run={run} onOpen={setSelectedRunId} />
+          <RunListItem key={run.id} run={run} onOpen={onOpen} />
         ))}
       </ul>
-      {selectedRun && (
-        <RunDetailsDialog
-          run={selectedRun}
-          onClose={() => setSelectedRunId(null)}
-        />
-      )}
     </>
   );
 }

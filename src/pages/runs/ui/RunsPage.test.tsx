@@ -137,17 +137,44 @@ describe('run details dialog', () => {
     expect(within(screen.getByRole('listitem')).getByText('Verify checkout totals')).toBeDefined()
   })
 
-  it('keeps details closed when history restores a previously selected run', async () => {
+  it('closes details and restores row focus on back to All and forward to Failed', async () => {
+    renderRunsPage()
+    fireEvent.click(await screen.findByRole('button', { name: 'Failed' }))
+    const runName = 'Verify checkout totals'
+
+    function openDetails() {
+      fireEvent.click(screen.getByRole('button', { name: runName }))
+      const dialog = screen.getByRole('dialog', { name: runName })
+      within(dialog).getByRole('button', { name: 'Close' }).focus()
+    }
+
+    openDetails()
+    window.history.back()
+    await screen.findByRole('button', { name: 'All', pressed: true })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: runName }))
+
+    openDetails()
+    window.history.forward()
+    await screen.findByRole('button', { name: 'Failed', pressed: true })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: runName }))
+  })
+
+  it.each(['', 'payments'])('restores filter focus and keeps details closed across history with search "%s"', async (query) => {
     window.history.replaceState(null, '', '/?status=running')
     renderRunsPage()
     const failedFilter = await screen.findByRole('button', { name: 'Failed' })
     fireEvent.click(failedFilter)
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: query } })
     const runButton = { name: 'Verify checkout totals' }
     fireEvent.click(screen.getByRole('button', runButton))
     screen.getByRole('dialog', runButton)
 
     window.history.back()
-    await screen.findByRole('button', { name: 'Running', pressed: true })
+    const activeFilter = await screen.findByRole('button', { name: 'Running', pressed: true })
+    expect(document.activeElement).toBe(activeFilter)
+    if (query) expect(screen.getByText('No matching runs')).toBeDefined()
     expect(screen.queryByRole('button', runButton)).toBeNull()
     expect(screen.queryByRole('dialog')).toBeNull()
 
