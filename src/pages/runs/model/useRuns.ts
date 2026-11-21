@@ -1,38 +1,36 @@
-import { useEffect, useState } from 'react'
-import { getRuns, type Run } from '../../../entities/run'
+import { useEffect, useState } from "react";
+import { getRuns, type Run } from "../../../entities/run";
 
-type RunsRequest =
-  | { status: 'loading' }
-  | { status: 'error' }
-  | { status: 'success'; runs: Run[] }
+type RunsRequest = { status: "loading" } | { status: "error" } | { status: "success"; runs: Run[] };
 
 export function useRuns({ failFirstRequest }: { failFirstRequest: boolean }) {
-  const [request, setRequest] = useState<RunsRequest>({ status: 'loading' })
-  const [attempt, setAttempt] = useState(0)
+  const [request, setRequest] = useState<RunsRequest>({ status: "loading" });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    const controller = new AbortController()
+    let ignore = false;
 
     async function loadRuns() {
       try {
         const runs = await getRuns({
-          signal: controller.signal,
           simulateError: failFirstRequest && attempt === 0,
-        })
-        if (!controller.signal.aborted) setRequest({ status: 'success', runs })
+        });
+        if (!ignore) setRequest({ status: "success", runs });
       } catch {
-        if (!controller.signal.aborted) setRequest({ status: 'error' })
+        if (!ignore) setRequest({ status: "error" });
       }
     }
 
-    void loadRuns()
-    return () => controller.abort()
-  }, [attempt, failFirstRequest])
+    void loadRuns();
+    return () => {
+      ignore = true;
+    };
+  }, [attempt, failFirstRequest]);
 
   function retry() {
-    setRequest({ status: 'loading' })
-    setAttempt(previous => previous + 1)
+    setRequest({ status: "loading" });
+    setAttempt((previous) => previous + 1);
   }
 
-  return { request, retry }
+  return { request, retry };
 }
