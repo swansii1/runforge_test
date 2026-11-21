@@ -10,6 +10,10 @@ export function RunList({ runs }: { runs: Run[] }) {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const selectedRun = runs.find((run) => run.id === selectedRunId);
 
+  if (selectedRunId !== null && !selectedRun) {
+    setSelectedRunId(null);
+  }
+
   return (
     <>
       <div className={styles.columns} aria-hidden="true">
