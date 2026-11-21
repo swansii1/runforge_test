@@ -1,4 +1,4 @@
-import type { Run } from "../../../entities/run";
+import type { Run } from "../../../../entities/run";
 import type { StatusFilter } from "./statusFilter";
 
 export function filterRuns(runs: Run[], searchQuery: string, status: StatusFilter) {

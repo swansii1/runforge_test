@@ -1,6 +1,6 @@
 import type { Ref } from "react";
-import { runStatusLabels } from "../../../entities/run";
-import { statusOptions, type StatusFilter } from "../model/statusFilter";
+import { runStatusLabels } from "../../../../entities/run";
+import { statusOptions, type StatusFilter } from "../../model/filters/statusFilter";
 import styles from "./RunFilters.module.css";
 
 type RunFiltersProps = {

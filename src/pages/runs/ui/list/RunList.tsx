@@ -1,5 +1,5 @@
 import { memo, type RefCallback } from "react";
-import type { Run } from "../../../entities/run";
+import type { Run } from "../../../../entities/run";
 import { RunListHeader } from "./RunListHeader";
 import { RunListItem } from "./RunListItem";
 import styles from "./RunList.module.css";

@@ -1,13 +1,13 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router";
-import { filterRuns } from "../model/filterRuns";
+import { filterRuns } from "../model/filters/filterRuns";
 import { useRunDetails } from "../model/useRunDetails";
-import { useRunFilters } from "../model/useRunFilters";
+import { useRunFilters } from "../model/filters/useRunFilters";
 import { useRuns } from "../model/useRuns";
-import { RunFilters } from "./RunFilters";
-import { RunDetailsDialog } from "./RunDetailsDialog";
-import { RunList } from "./RunList";
-import { RunListSkeleton } from "./RunListSkeleton";
+import { RunFilters } from "./filters/RunFilters";
+import { RunDetailsDialog } from "./details/RunDetailsDialog";
+import { RunList } from "./list/RunList";
+import { RunListSkeleton } from "./list/RunListSkeleton";
 import styles from "./RunsPanelContent.module.css";
 
 export function RunsPanelContent() {
