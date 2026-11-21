@@ -1,11 +1,7 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import {
-  useLocation,
-  useNavigationType,
-  useSearchParams,
-  type Location,
-} from "react-router";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router";
 import { filterRuns } from "../model/filterRuns";
+import { useRunDetails } from "../model/useRunDetails";
 import { useRunFilters } from "../model/useRunFilters";
 import { useRuns } from "../model/useRuns";
 import { RunFilters } from "./RunFilters";
@@ -13,59 +9,20 @@ import { RunDetailsDialog } from "./RunDetailsDialog";
 import { RunList } from "./RunList";
 import styles from "./RunsPanelContent.module.css";
 
-type RunSelection = {
-  runId: string;
-  openedAt: Location;
-  trigger: HTMLButtonElement;
-};
-
 export function RunsPanelContent() {
-  const {
-    searchQuery,
-    debouncedSearchQuery,
-    updateSearchQuery,
-    status,
-    setStatus,
-    resetFilters,
-  } = useRunFilters();
-  const location = useLocation();
-  const navigationType = useNavigationType();
+  const { searchQuery, debouncedSearchQuery, updateSearchQuery, status, setStatus, resetFilters } =
+    useRunFilters();
   const [searchParams] = useSearchParams();
   const failFirstRequest = searchParams.get("mockError") === "once";
 
   const { request, retry } = useRuns({ failFirstRequest });
-  const [selection, setSelection] = useState<RunSelection | null>(null);
-  const activeStatusRef = useRef<HTMLButtonElement>(null);
+  const runs = request.status === "success" ? request.runs : undefined;
+  const { selectedRun, openRunDetails, closeRunDetails, activeStatusRef, runButtonRef } =
+    useRunDetails(runs);
   const visibleRuns = useMemo(
-    () =>
-      request.status === "success"
-        ? filterRuns(request.runs, debouncedSearchQuery, status)
-        : [],
-    [request, debouncedSearchQuery, status],
+    () => (runs ? filterRuns(runs, debouncedSearchQuery, status) : []),
+    [runs, debouncedSearchQuery, status],
   );
-  const selectedRun = selection
-    ? visibleRuns.find((run) => run.id === selection.runId)
-    : undefined;
-  const historyChanged =
-    navigationType === "POP" && selection?.openedAt !== location;
-  const showDetails = selectedRun && !historyChanged;
-
-  const openRunDetails = useCallback(
-    (runId: string, trigger: HTMLButtonElement) => {
-      setSelection({ runId, trigger, openedAt: location });
-    },
-    [location],
-  );
-
-  useLayoutEffect(() => {
-    if (!selection || showDetails) return;
-
-    const focusTarget = selection.trigger.isConnected
-      ? selection.trigger
-      : activeStatusRef.current;
-    focusTarget?.focus();
-    setSelection(null);
-  }, [selection, showDetails]);
 
   if (request.status === "loading") {
     return (
@@ -96,7 +53,7 @@ export function RunsPanelContent() {
         onStatusChange={setStatus}
       />
       {visibleRuns.length > 0 ? (
-        <RunList runs={visibleRuns} onOpen={openRunDetails} />
+        <RunList runs={visibleRuns} onOpen={openRunDetails} runButtonRef={runButtonRef} />
       ) : (
         <div className={styles.message}>
           <p role="status">No matching runs</p>
@@ -105,12 +62,7 @@ export function RunsPanelContent() {
           </button>
         </div>
       )}
-      {showDetails && (
-        <RunDetailsDialog
-          run={selectedRun}
-          onClose={() => setSelection(null)}
-        />
-      )}
+      {selectedRun && <RunDetailsDialog run={selectedRun} onClose={closeRunDetails} />}
     </>
   );
 }
