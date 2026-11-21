@@ -36,3 +36,26 @@ it('recovers from a failed request when Retry is pressed', async () => {
   expect(screen.queryByRole('alert')).toBeNull()
   expect(window.location.search).toBe('?mockError=once')
 })
+
+it('combines repository and name searches with the status filter and resets both controls', async () => {
+  render(<RunsPage />)
+
+  const search = await screen.findByRole<HTMLInputElement>('searchbox', { name: 'Search runs' })
+  fireEvent.change(search, { target: { value: '  WEB-plat  ' } })
+  expect(screen.getAllByRole('listitem')).toHaveLength(3)
+
+  fireEvent.click(screen.getByRole('button', { name: 'Failed' }))
+  expect(screen.getAllByRole('listitem')).toHaveLength(1)
+  expect(within(screen.getByRole('listitem')).getByText('Check keyboard navigation')).toBeDefined()
+
+  fireEvent.change(search, { target: { value: 'checkout' } })
+  expect(within(screen.getByRole('listitem')).getByText('Verify checkout totals')).toBeDefined()
+
+  fireEvent.click(screen.getByRole('button', { name: 'Succeeded' }))
+  expect(screen.getByText('No matching runs')).toBeDefined()
+  expect(screen.queryByRole('listitem')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
+  expect(search.value).toBe('')
+  expect(screen.getByRole('button', { name: 'All', pressed: true })).toBeDefined()
+  expect(screen.getAllByRole('listitem')).toHaveLength(6)
+})

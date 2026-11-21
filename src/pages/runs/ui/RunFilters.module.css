@@ -1,0 +1,46 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #dedbd5;
+}
+
+.search {
+  flex: 1 1 16rem;
+  min-width: 0;
+  padding: .65rem .8rem;
+  border: 1px solid #aaa9a4;
+  border-radius: .45rem;
+  font: inherit;
+  color: inherit;
+}
+
+.statusOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+.statusOptions button {
+  padding: .55rem .7rem;
+  border: 0;
+  border-radius: .45rem;
+  background: #f3f1ed;
+  color: #344050;
+  font: inherit;
+  font-size: .875rem;
+  cursor: pointer;
+}
+
+.statusOptions button[aria-pressed="true"] {
+  background: #101e32;
+  color: white;
+  font-weight: 600;
+}
+
+.toolbar :focus-visible {
+  outline: 2px solid #2966a8;
+  outline-offset: 2px;
+}
