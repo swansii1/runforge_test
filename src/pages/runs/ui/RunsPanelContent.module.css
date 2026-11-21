@@ -1,9 +1,18 @@
-.message { margin: 0; padding: 2rem; }
-.message p { margin: 0 0 .75rem; }
+.loadingFilters {
+  opacity: 0.55;
+}
+
+.message {
+  margin: 0;
+  padding: 2rem;
+}
+.message p {
+  margin: 0 0 0.75rem;
+}
 .message button {
-  padding: .65rem 1rem;
+  padding: 0.65rem 1rem;
   border: 0;
-  border-radius: .45rem;
+  border-radius: 0.45rem;
   background: #101e32;
   color: white;
   font: inherit;

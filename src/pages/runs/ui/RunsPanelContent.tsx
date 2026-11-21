@@ -7,6 +7,7 @@ import { useRuns } from "../model/useRuns";
 import { RunFilters } from "./RunFilters";
 import { RunDetailsDialog } from "./RunDetailsDialog";
 import { RunList } from "./RunList";
+import { RunListSkeleton } from "./RunListSkeleton";
 import styles from "./RunsPanelContent.module.css";
 
 export function RunsPanelContent() {
@@ -45,14 +46,6 @@ export function RunsPanelContent() {
     searchInputRef.current?.focus();
   }
 
-  if (request.status === "loading") {
-    return (
-      <p className={styles.message} role="status">
-        Loading runs…
-      </p>
-    );
-  }
-
   if (request.status === "error") {
     return (
       <div className={styles.message} role="alert">
@@ -64,16 +57,31 @@ export function RunsPanelContent() {
     );
   }
 
+  const filters = (
+    <RunFilters
+      searchQuery={searchQuery}
+      status={status}
+      searchInputRef={searchInputRef}
+      activeStatusRef={activeStatusRef}
+      onSearchChange={updateSearchQuery}
+      onStatusChange={setStatus}
+    />
+  );
+
+  if (request.status === "loading") {
+    return (
+      <>
+        <div className={styles.loadingFilters} inert aria-hidden="true">
+          {filters}
+        </div>
+        <RunListSkeleton />
+      </>
+    );
+  }
+
   return (
     <>
-      <RunFilters
-        searchQuery={searchQuery}
-        status={status}
-        searchInputRef={searchInputRef}
-        activeStatusRef={activeStatusRef}
-        onSearchChange={updateSearchQuery}
-        onStatusChange={setStatus}
-      />
+      {filters}
       {visibleRuns.length > 0 ? (
         <RunList runs={visibleRuns} onOpen={openRunDetails} runButtonRef={runButtonRef} />
       ) : (

@@ -1,9 +1,8 @@
 import { memo, type RefCallback } from "react";
 import type { Run } from "../../../entities/run";
+import { RunListHeader } from "./RunListHeader";
 import { RunListItem } from "./RunListItem";
 import styles from "./RunList.module.css";
-
-const columnLabels = ["Run", "Status", "Created", "Duration"];
 
 type RunListProps = {
   runs: Run[];
@@ -14,11 +13,7 @@ type RunListProps = {
 export const RunList = memo(function RunList({ runs, onOpen, runButtonRef }: RunListProps) {
   return (
     <>
-      <div className={styles.columns} aria-hidden="true">
-        {columnLabels.map((label) => (
-          <span key={label}>{label}</span>
-        ))}
-      </div>
+      <RunListHeader />
       <ul className={styles.list} aria-label="Runs">
         {runs.map((run) => (
           <RunListItem key={run.id} run={run} onOpen={onOpen} runButtonRef={runButtonRef} />
