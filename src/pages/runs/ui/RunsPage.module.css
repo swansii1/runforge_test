@@ -1,5 +1,25 @@
-.page {
-  width: min(100%, 72rem);
+.header {
+  border-bottom: 1px solid #dedbd5;
+}
+
+.header span, .page {
+  display: block;
+  width: min(100%, 70rem);
   margin-inline: auto;
-  padding: clamp(1rem, 4vw, 3rem);
+  padding-inline: clamp(1rem, 4vw, 3rem);
+}
+
+.header span {
+  padding-block: .9rem;
+  font: bold 1.4rem Georgia, serif;
+}
+
+.page { padding-block: clamp(1rem, 4vw, 3rem); }
+.page h1 { margin: 0 0 1.25rem; }
+
+.panel {
+  overflow: hidden;
+  border: 1px solid #dedbd5;
+  border-radius: .75rem;
+  background: #fffdfa;
 }
