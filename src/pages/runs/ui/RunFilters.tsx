@@ -1,8 +1,6 @@
 import { runStatusLabels } from "../../../entities/run";
-import type { StatusFilter } from "../model/filterRuns";
+import { statusOptions, type StatusFilter } from "../model/statusFilter";
 import styles from "./RunFilters.module.css";
-
-const statusOptions: StatusFilter[] = ["all", "queued", "running", "succeeded", "failed"];
 
 type RunFiltersProps = {
   searchQuery: string;

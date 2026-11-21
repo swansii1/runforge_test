@@ -1,15 +1,14 @@
-import { useState } from "react";
-import { filterRuns, type StatusFilter } from "../model/filterRuns";
+import { useSearchParams } from "react-router";
+import { filterRuns } from "../model/filterRuns";
+import { useRunFilters } from "../model/useRunFilters";
 import { useRuns } from "../model/useRuns";
 import { RunFilters } from "./RunFilters";
 import { RunList } from "./RunList";
 import styles from "./RunsPanelContent.module.css";
 
 export function RunsPanelContent() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
-
-  const searchParams = new URLSearchParams(window.location.search);
+  const { searchQuery, setSearchQuery, status, setStatus, resetFilters } = useRunFilters();
+  const [searchParams] = useSearchParams();
   const failFirstRequest = searchParams.get("mockError") === "once";
 
   const { request, retry } = useRuns({ failFirstRequest });
@@ -34,11 +33,6 @@ export function RunsPanelContent() {
   }
 
   const visibleRuns = filterRuns(request.runs, searchQuery, status);
-
-  function resetFilters() {
-    setSearchQuery("");
-    setStatus("all");
-  }
 
   return (
     <>

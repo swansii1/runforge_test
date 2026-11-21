@@ -1,6 +1,5 @@
-import type { Run, RunStatus } from "../../../entities/run";
-
-export type StatusFilter = "all" | RunStatus;
+import type { Run } from "../../../entities/run";
+import type { StatusFilter } from "./statusFilter";
 
 export function filterRuns(runs: Run[], searchQuery: string, status: StatusFilter) {
   const query = searchQuery.trim().toLowerCase();
