@@ -23,10 +23,7 @@ export function useRunFilters() {
       return;
     }
 
-    searchTimer.current = window.setTimeout(
-      () => setDebouncedSearchQuery(query),
-      searchDelayMs,
-    );
+    searchTimer.current = window.setTimeout(() => setDebouncedSearchQuery(query), searchDelayMs);
   }
 
   function setStatus(nextStatus: StatusFilter) {

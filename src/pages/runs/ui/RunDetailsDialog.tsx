@@ -25,9 +25,7 @@ export function RunDetailsDialog({ run, onClose }: RunDetailsDialogProps) {
         <div>
           <dt>Created</dt>
           <dd>
-            <time dateTime={run.createdAt}>
-              {formatDateTime(run.createdAt)}
-            </time>
+            <time dateTime={run.createdAt}>{formatDateTime(run.createdAt)}</time>
           </dd>
         </div>
         <div>

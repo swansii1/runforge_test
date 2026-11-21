@@ -1,13 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router'
-import { RunsPage } from '../pages/runs'
-import './styles/global.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router";
+import { RunsPage } from "../pages/runs";
+import "./styles/global.css";
 
-const rootElement = document.getElementById('root')
+const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  throw new Error('Missing root element for the Runforge application')
+  throw new Error("Missing root element for the Runforge application");
 }
 
 createRoot(rootElement).render(
@@ -16,4 +16,4 @@ createRoot(rootElement).render(
       <RunsPage />
     </BrowserRouter>
   </StrictMode>,
-)
+);

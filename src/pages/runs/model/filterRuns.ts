@@ -8,9 +8,6 @@ export function filterRuns(runs: Run[], searchQuery: string, status: StatusFilte
     if (status !== "all" && run.status !== status) return false;
     if (query === "") return true;
 
-    return (
-      run.name.toLowerCase().includes(query) ||
-      run.repository.toLowerCase().includes(query)
-    );
+    return run.name.toLowerCase().includes(query) || run.repository.toLowerCase().includes(query);
   });
 }

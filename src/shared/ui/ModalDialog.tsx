@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  type MouseEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, type MouseEvent, type ReactNode } from "react";
 import styles from "./ModalDialog.module.css";
 
 type ModalDialogProps = {
@@ -15,13 +9,9 @@ type ModalDialogProps = {
 
 function isBackdropEvent(event: MouseEvent<HTMLDialogElement>) {
   if (event.target !== event.currentTarget) return false;
-  const { left, right, top, bottom } =
-    event.currentTarget.getBoundingClientRect();
+  const { left, right, top, bottom } = event.currentTarget.getBoundingClientRect();
   return (
-    event.clientX < left ||
-    event.clientX >= right ||
-    event.clientY < top ||
-    event.clientY >= bottom
+    event.clientX < left || event.clientX >= right || event.clientY < top || event.clientY >= bottom
   );
 }
 
@@ -45,14 +35,18 @@ export function ModalDialog({ title, onClose, children }: ModalDialogProps) {
         pressedBackdrop.current = isBackdropEvent(event);
       }}
       onClick={(event) => {
-        if (pressedBackdrop.current && isBackdropEvent(event))
-          event.currentTarget.close();
+        if (pressedBackdrop.current && isBackdropEvent(event)) event.currentTarget.close();
         pressedBackdrop.current = false;
       }}
     >
       <header className={styles.header}>
         <h2 id={titleId}>{title}</h2>
-        <button className={styles.closeButton} type="button" aria-label="Close" onClick={() => dialogRef.current?.close()}>
+        <button
+          className={styles.closeButton}
+          type="button"
+          aria-label="Close"
+          onClick={() => dialogRef.current?.close()}
+        >
           <span aria-hidden="true">×</span>
         </button>
       </header>
