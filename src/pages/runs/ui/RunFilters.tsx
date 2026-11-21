@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { runStatusLabels } from "../../../entities/run";
 import { statusOptions, type StatusFilter } from "../model/statusFilter";
 import styles from "./RunFilters.module.css";
@@ -5,11 +6,12 @@ import styles from "./RunFilters.module.css";
 type RunFiltersProps = {
   searchQuery: string;
   status: StatusFilter;
+  activeStatusRef: Ref<HTMLButtonElement>;
   onSearchChange: (query: string) => void;
   onStatusChange: (status: StatusFilter) => void;
 };
 
-export function RunFilters({ searchQuery, status, onSearchChange, onStatusChange }: RunFiltersProps) {
+export function RunFilters({ searchQuery, status, activeStatusRef, onSearchChange, onStatusChange }: RunFiltersProps) {
   return (
     <div className={styles.toolbar}>
       <input
@@ -24,6 +26,7 @@ export function RunFilters({ searchQuery, status, onSearchChange, onStatusChange
         {statusOptions.map((option) => (
           <button
             key={option}
+            ref={status === option ? activeStatusRef : undefined}
             type="button"
             aria-pressed={status === option}
             onClick={() => onStatusChange(option)}

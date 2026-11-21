@@ -4,7 +4,12 @@ import styles from "./RunList.module.css";
 
 const columnLabels = ["Run", "Status", "Created", "Duration"];
 
-export function RunList({ runs }: { runs: Run[] }) {
+type RunListProps = {
+  runs: Run[];
+  onOpen: (id: string, trigger: HTMLButtonElement) => void;
+};
+
+export function RunList({ runs, onOpen }: RunListProps) {
   return (
     <>
       <div className={styles.columns} aria-hidden="true">
@@ -14,7 +19,7 @@ export function RunList({ runs }: { runs: Run[] }) {
       </div>
       <ul className={styles.list} aria-label="Runs">
         {runs.map((run) => (
-          <RunListItem key={run.id} run={run} />
+          <RunListItem key={run.id} run={run} onOpen={onOpen} />
         ))}
       </ul>
     </>

@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { BrowserRouter } from 'react-router'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { afterEach, assert, expect, it } from 'vitest'
+import { afterAll, afterEach, assert, beforeAll, describe, expect, it } from 'vitest'
 import { RunsPage } from './RunsPage'
 
 afterEach(() => {
@@ -100,4 +100,89 @@ it('shows all runs for an unknown status', async () => {
 
   await screen.findByRole('button', { name: 'All', pressed: true })
   expect(screen.getAllByRole('listitem')).toHaveLength(6)
+})
+
+describe('run details dialog', () => {
+  beforeAll(() => {
+    // jsdom exposes the dialog element but does not implement showModal().
+    HTMLDialogElement.prototype.showModal = function () { this.open = true }
+    HTMLDialogElement.prototype.close = function () {
+      this.open = false
+      this.dispatchEvent(new Event('close'))
+    }
+  })
+
+  afterAll(() => {
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal')
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'close')
+  })
+
+  it('opens the selected run and keeps the filtered list after the dialog closes', async () => {
+    window.history.replaceState(null, '', '/?status=failed')
+    renderRunsPage()
+    const search = await screen.findByRole<HTMLInputElement>('searchbox')
+    fireEvent.change(search, { target: { value: 'payments' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify checkout totals' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Verify checkout totals' })
+    expect(within(dialog).getByText('Loaded checkout fixtures.', { exact: false }).textContent)
+      .toBe('Loaded checkout fixtures.\nExpected total 19.99, received 20.00.\nOne test failed.')
+    expect(within(dialog).getByText('Checkout rounds the discounted total incorrectly.')).toBeDefined()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }))
+
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(search.value).toBe('payments')
+    expect(window.location.search).toBe('?status=failed')
+    expect(screen.getByRole('button', { name: 'Failed', pressed: true })).toBeDefined()
+    expect(within(screen.getByRole('listitem')).getByText('Verify checkout totals')).toBeDefined()
+  })
+
+  it('closes details and restores row focus on back to All and forward to Failed', async () => {
+    renderRunsPage()
+    fireEvent.click(await screen.findByRole('button', { name: 'Failed' }))
+    const runName = 'Verify checkout totals'
+
+    function openDetails() {
+      fireEvent.click(screen.getByRole('button', { name: runName }))
+      const dialog = screen.getByRole('dialog', { name: runName })
+      within(dialog).getByRole('button', { name: 'Close' }).focus()
+    }
+
+    openDetails()
+    window.history.back()
+    await screen.findByRole('button', { name: 'All', pressed: true })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: runName }))
+
+    openDetails()
+    window.history.forward()
+    await screen.findByRole('button', { name: 'Failed', pressed: true })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: runName }))
+  })
+
+  it.each(['', 'payments'])('restores filter focus and keeps details closed across history with search "%s"', async (query) => {
+    window.history.replaceState(null, '', '/?status=running')
+    renderRunsPage()
+    const failedFilter = await screen.findByRole('button', { name: 'Failed' })
+    fireEvent.click(failedFilter)
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: query } })
+    const runButton = { name: 'Verify checkout totals' }
+    fireEvent.click(screen.getByRole('button', runButton))
+    screen.getByRole('dialog', runButton)
+
+    window.history.back()
+    const activeFilter = await screen.findByRole('button', { name: 'Running', pressed: true })
+    expect(document.activeElement).toBe(activeFilter)
+    if (query) expect(screen.getByText('No matching runs')).toBeDefined()
+    expect(screen.queryByRole('button', runButton)).toBeNull()
+    expect(screen.queryByRole('dialog')).toBeNull()
+
+    window.history.forward()
+    await screen.findByRole('button', { name: 'Failed', pressed: true })
+    const restoredRun = screen.getByRole('button', runButton)
+    expect(screen.queryByRole('dialog')).toBeNull()
+    fireEvent.click(restoredRun)
+    screen.getByRole('dialog', runButton)
+  })
 })

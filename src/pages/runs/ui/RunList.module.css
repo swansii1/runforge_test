@@ -20,10 +20,33 @@
 }
 
 .row {
+  position: relative;
   border-top: 1px solid #e5e1da;
   font-size: .9rem;
   overflow-wrap: anywhere;
 }
+
+.openRun {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+/* Extend the title button's click target over the entire row. */
+.openRun::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+.row:hover { background: #f8f7f4; }
+.openRun:focus-visible::after { outline: 2px solid #2966a8; outline-offset: -2px; }
 
 .repository {
   margin-top: .3rem;

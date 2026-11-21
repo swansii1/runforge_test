@@ -1,0 +1,36 @@
+.metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+  margin: 1.25rem 0;
+}
+.metadata dt { font-size: .8rem; color: #565b60; }
+.metadata dd { margin: .15rem 0 0; }
+
+@media (max-width: 30rem) {
+  .metadata {
+    grid-template-columns: 1fr;
+    gap: .6rem;
+    padding-block: .85rem;
+    border-block: 1px solid #e5e1da;
+    margin-block: 1rem;
+  }
+  .metadata > div {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: .5rem;
+  }
+  .metadata dd { margin: 0; font-size: .9rem; }
+}
+.sectionTitle { margin: 1.25rem 0 .5rem; font-size: 1rem; }
+.result { margin: 0; }
+.logs {
+  margin: 0;
+  padding: 1rem;
+  border-radius: .45rem;
+  background: #101e32;
+  color: #faf9f6;
+  white-space: pre-wrap;
+  font: .85rem/1.6 ui-monospace, monospace;
+}
