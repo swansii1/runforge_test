@@ -1,3 +1,4 @@
+import type { RefCallback } from "react";
 import { RunStatusBadge, type Run } from "../../../entities/run";
 import { formatDateTime } from "../../../shared/lib/formatDateTime";
 import { formatDuration } from "../../../shared/lib/formatDuration";
@@ -5,14 +6,16 @@ import styles from "./RunList.module.css";
 
 type RunListItemProps = {
   run: Run;
+  runButtonRef: RefCallback<HTMLButtonElement>;
   onOpen: (id: string, trigger: HTMLButtonElement) => void;
 };
 
-export function RunListItem({ run, onOpen }: RunListItemProps) {
+export function RunListItem({ run, onOpen, runButtonRef }: RunListItemProps) {
   return (
     <li className={styles.row}>
       <div>
         <button
+          ref={runButtonRef}
           className={styles.openRun}
           type="button"
           aria-haspopup="dialog"

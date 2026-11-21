@@ -6,15 +6,24 @@ import styles from "./RunFilters.module.css";
 type RunFiltersProps = {
   searchQuery: string;
   status: StatusFilter;
+  searchInputRef: Ref<HTMLInputElement>;
   activeStatusRef: Ref<HTMLButtonElement>;
   onSearchChange: (query: string) => void;
   onStatusChange: (status: StatusFilter) => void;
 };
 
-export function RunFilters({ searchQuery, status, activeStatusRef, onSearchChange, onStatusChange }: RunFiltersProps) {
+export function RunFilters({
+  searchQuery,
+  status,
+  searchInputRef,
+  activeStatusRef,
+  onSearchChange,
+  onStatusChange,
+}: RunFiltersProps) {
   return (
     <div className={styles.toolbar}>
       <input
+        ref={searchInputRef}
         className={styles.search}
         type="search"
         aria-label="Search runs"

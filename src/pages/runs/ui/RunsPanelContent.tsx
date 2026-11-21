@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from "react";
-import { useLocation, useNavigationType, useSearchParams, type Location } from "react-router";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "react-router";
 import { filterRuns } from "../model/filterRuns";
+import { useRunDetails } from "../model/useRunDetails";
 import { useRunFilters } from "../model/useRunFilters";
 import { useRuns } from "../model/useRuns";
 import { RunFilters } from "./RunFilters";
@@ -8,34 +9,41 @@ import { RunDetailsDialog } from "./RunDetailsDialog";
 import { RunList } from "./RunList";
 import styles from "./RunsPanelContent.module.css";
 
-type RunSelection = {
-  runId: string;
-  openedAt: Location;
-  trigger: HTMLButtonElement;
-};
-
 export function RunsPanelContent() {
-  const { searchQuery, setSearchQuery, status, setStatus, resetFilters } = useRunFilters();
-  const location = useLocation();
-  const navigationType = useNavigationType();
+  const { searchQuery, debouncedSearchQuery, updateSearchQuery, status, setStatus, resetFilters } =
+    useRunFilters();
   const [searchParams] = useSearchParams();
   const failFirstRequest = searchParams.get("mockError") === "once";
 
   const { request, retry } = useRuns({ failFirstRequest });
-  const [selection, setSelection] = useState<RunSelection | null>(null);
-  const activeStatusRef = useRef<HTMLButtonElement>(null);
-  const visibleRuns = request.status === "success" ? filterRuns(request.runs, searchQuery, status) : [];
-  const selectedRun = visibleRuns.find((run) => run.id === selection?.runId);
-  const historyChanged = navigationType === "POP" && selection?.openedAt !== location;
-  const showDetails = selectedRun && !historyChanged;
+  const runs = request.status === "success" ? request.runs : undefined;
+  const { selectedRun, openRunDetails, closeRunDetails, activeStatusRef, runButtonRef } =
+    useRunDetails(runs);
+  const visibleRuns = useMemo(
+    () => (runs ? filterRuns(runs, debouncedSearchQuery, status) : []),
+    [runs, debouncedSearchQuery, status],
+  );
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const focusSearchAfterRetry = useRef(false);
 
   useLayoutEffect(() => {
-    if (!selection || showDetails) return;
+    if (!focusSearchAfterRetry.current || request.status === "loading") return;
+    focusSearchAfterRetry.current = false;
+    if (request.status === "success" && document.activeElement === document.body) {
+      searchInputRef.current?.focus();
+    }
+  }, [request.status]);
 
-    const focusTarget = selection.trigger.isConnected ? selection.trigger : activeStatusRef.current;
-    focusTarget?.focus();
-    setSelection(null);
-  }, [selection, showDetails]);
+  function handleRetry() {
+    focusSearchAfterRetry.current = true;
+    retry();
+  }
+
+  function handleResetFilters() {
+    resetFilters();
+    searchInputRef.current?.focus();
+  }
 
   if (request.status === "loading") {
     return (
@@ -49,7 +57,7 @@ export function RunsPanelContent() {
     return (
       <div className={styles.message} role="alert">
         <p>Couldn’t load runs.</p>
-        <button type="button" onClick={retry}>
+        <button type="button" onClick={handleRetry}>
           Retry
         </button>
       </div>
@@ -61,26 +69,22 @@ export function RunsPanelContent() {
       <RunFilters
         searchQuery={searchQuery}
         status={status}
+        searchInputRef={searchInputRef}
         activeStatusRef={activeStatusRef}
-        onSearchChange={setSearchQuery}
+        onSearchChange={updateSearchQuery}
         onStatusChange={setStatus}
       />
       {visibleRuns.length > 0 ? (
-        <RunList
-          runs={visibleRuns}
-          onOpen={(runId, trigger) => setSelection({ runId, trigger, openedAt: location })}
-        />
+        <RunList runs={visibleRuns} onOpen={openRunDetails} runButtonRef={runButtonRef} />
       ) : (
         <div className={styles.message}>
           <p role="status">No matching runs</p>
-          <button type="button" onClick={resetFilters}>
+          <button type="button" onClick={handleResetFilters}>
             Reset filters
           </button>
         </div>
       )}
-      {showDetails && (
-        <RunDetailsDialog run={selectedRun} onClose={() => setSelection(null)} />
-      )}
+      {selectedRun && <RunDetailsDialog run={selectedRun} onClose={closeRunDetails} />}
     </>
   );
 }
