@@ -23,6 +23,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   vi.useRealTimers();
   window.history.replaceState(null, "", "/");
 });
@@ -57,6 +58,24 @@ it("shows loading and renders all six runs with distinct zero and missing durati
   expect(within(dependenciesRow).getByText("—")).toBeDefined();
 });
 
+it("fills the visible list area with decorative rows while the request is pending", () => {
+  vi.mocked(runApi.getRuns).mockReturnValue(createPendingRunsRequest().promise);
+  vi.stubGlobal("innerHeight", 481);
+  vi.spyOn(HTMLLIElement.prototype, "getBoundingClientRect").mockReturnValue(
+    new DOMRect(0, 160, 900, 80),
+  );
+  renderRunsPage();
+
+  const placeholders = screen.getByRole("list", { hidden: true });
+  expect(placeholders.children).toHaveLength(5);
+  expect(screen.queryByRole("list")).toBeNull();
+  expect(screen.getByRole("status").textContent).toBe("Loading runs…");
+
+  vi.stubGlobal("innerHeight", 800);
+  fireEvent(window, new Event("resize"));
+  expect(placeholders.children).toHaveLength(8);
+});
+
 it("recovers from a failed request when Retry is pressed", async () => {
   const initialRequest = createPendingRunsRequest();
   const retryRequest = createPendingRunsRequest();
@@ -77,15 +96,18 @@ it("recovers from a failed request when Retry is pressed", async () => {
     initialRequest.reject(new Error("First request failed"));
   });
   screen.getByRole("alert");
+  expect(screen.queryByRole("list", { hidden: true })).toBeNull();
   expect(window.location.search).toBe("?mockError=once");
   const retryButton = screen.getByRole("button", { name: "Retry" });
   retryButton.focus();
   fireEvent.click(retryButton);
   expect(screen.getByText("Loading runs…")).toBeDefined();
+  const retrySkeleton = screen.getByRole("list", { hidden: true });
   await act(async () => {
     retryRequest.resolve(createMockRuns());
   });
   const list = screen.getByRole("list", { name: "Runs" });
+  expect(retrySkeleton.isConnected).toBe(false);
   expect(within(list).getAllByRole("listitem")).toHaveLength(6);
   expect(document.activeElement).toBe(screen.getByRole("searchbox"));
   expect(screen.queryByRole("alert")).toBeNull();

@@ -1,4 +1,4 @@
-import { runStatuses, type RunStatus } from "../../../entities/run";
+import { runStatuses, type RunStatus } from "../../../../entities/run";
 
 export type StatusFilter = "all" | RunStatus;
 

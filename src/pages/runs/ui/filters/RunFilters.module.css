@@ -2,7 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .75rem 1rem;
+  gap: 0.75rem 1rem;
   padding: 1rem;
   border-bottom: 1px solid #dedbd5;
 }
@@ -10,9 +10,9 @@
 .search {
   flex: 1 1 16rem;
   min-width: 0;
-  padding: .65rem .8rem;
+  padding: 0.65rem 0.8rem;
   border: 1px solid #aaa9a4;
-  border-radius: .45rem;
+  border-radius: 0.45rem;
   font: inherit;
   color: inherit;
 }
@@ -20,17 +20,17 @@
 .statusOptions {
   display: flex;
   flex-wrap: wrap;
-  gap: .25rem;
+  gap: 0.25rem;
 }
 
 .statusOptions button {
-  padding: .55rem .7rem;
+  padding: 0.55rem 0.7rem;
   border: 0;
-  border-radius: .45rem;
+  border-radius: 0.45rem;
   background: #f3f1ed;
   color: #344050;
   font: inherit;
-  font-size: .875rem;
+  font-size: 0.875rem;
   cursor: pointer;
 }
 

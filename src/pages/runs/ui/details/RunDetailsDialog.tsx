@@ -1,7 +1,7 @@
-import { RunStatusBadge, type Run } from "../../../entities/run";
-import { formatDateTime } from "../../../shared/lib/formatDateTime";
-import { formatDuration } from "../../../shared/lib/formatDuration";
-import { ModalDialog } from "../../../shared/ui/ModalDialog";
+import { RunStatusBadge, type Run } from "../../../../entities/run";
+import { formatDateTime } from "../../../../shared/lib/formatDateTime";
+import { formatDuration } from "../../../../shared/lib/formatDuration";
+import { ModalDialog } from "../../../../shared/ui/ModalDialog";
 import styles from "./RunDetailsDialog.module.css";
 
 type RunDetailsDialogProps = {
@@ -25,9 +25,7 @@ export function RunDetailsDialog({ run, onClose }: RunDetailsDialogProps) {
         <div>
           <dt>Created</dt>
           <dd>
-            <time dateTime={run.createdAt}>
-              {formatDateTime(run.createdAt)}
-            </time>
+            <time dateTime={run.createdAt}>{formatDateTime(run.createdAt)}</time>
           </dd>
         </div>
         <div>
