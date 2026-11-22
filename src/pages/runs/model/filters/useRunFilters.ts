@@ -1,55 +1,75 @@
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useLayoutEffect, useRef, useState } from "react";
+import { useLocation, useSearchParams } from "react-router";
+import { parseRunSort, type RunSort } from "./runSort";
 import { parseStatusFilter, type StatusFilter } from "./statusFilter";
 
 const searchDelayMs = 300;
 
+type SelectionChange = { param: "status" | "sort"; value: string | null };
+
 export function useRunFilters() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const appliedSearchQuery = searchParams.get("search") ?? "";
+  const status = parseStatusFilter(searchParams.get("status"));
+  const sort = parseRunSort(searchParams.get("sort"));
+  const [searchQuery, setSearchQuery] = useState(appliedSearchQuery);
   const searchTimer = useRef<number | undefined>(undefined);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const status = parseStatusFilter(searchParams.get("status"));
+  useLayoutEffect(() => {
+    setSearchQuery(appliedSearchQuery);
+    return () => window.clearTimeout(searchTimer.current);
+  }, [location.key, appliedSearchQuery]);
 
-  useEffect(() => () => window.clearTimeout(searchTimer.current), []);
-
-  function updateSearchQuery(query: string) {
+  function applyFilters(query: string, selection?: SelectionChange) {
     window.clearTimeout(searchTimer.current);
-    setSearchQuery(query);
-
-    if (query === "") {
-      setDebouncedSearchQuery("");
-      return;
-    }
-
-    searchTimer.current = window.setTimeout(() => setDebouncedSearchQuery(query), searchDelayMs);
-  }
-
-  function setStatus(nextStatus: StatusFilter) {
     const nextParams = new URLSearchParams(searchParams);
-    if (nextStatus === "all") {
-      nextParams.delete("status");
-    } else {
-      nextParams.set("status", nextStatus);
+    if (query.trim()) nextParams.set("search", query);
+    else nextParams.delete("search");
+
+    if (selection) {
+      if (selection.value === null) nextParams.delete(selection.param);
+      else nextParams.set(selection.param, selection.value);
     }
 
     if (nextParams.toString() !== searchParams.toString()) {
-      setSearchParams(nextParams);
+      setSearchParams(nextParams, { replace: selection === undefined });
     }
   }
 
+  function updateSearchQuery(query: string) {
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      applyFilters("");
+      return;
+    }
+
+    window.clearTimeout(searchTimer.current);
+    searchTimer.current = window.setTimeout(() => applyFilters(query), searchDelayMs);
+  }
+
+  function setStatus(nextStatus: StatusFilter) {
+    applyFilters(searchQuery, { param: "status", value: nextStatus === "all" ? null : nextStatus });
+  }
+
+  function setSort(nextSort: RunSort) {
+    applyFilters(searchQuery, { param: "sort", value: nextSort });
+  }
+
   function resetFilters() {
-    updateSearchQuery("");
-    setStatus("all");
+    setSearchQuery("");
+    applyFilters("", { param: "status", value: null });
   }
 
   return {
     searchQuery,
-    debouncedSearchQuery,
+    appliedSearchQuery,
     updateSearchQuery,
     status,
     setStatus,
+    sort,
+    setSort,
     resetFilters,
   };
 }

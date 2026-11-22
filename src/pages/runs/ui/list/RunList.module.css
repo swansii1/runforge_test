@@ -20,6 +20,38 @@
   font-weight: 600;
 }
 
+.sortButton {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  margin-block: -0.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sortButton span {
+  font-size: 1rem;
+  color: #6b7178;
+}
+
+.sortButton[data-active="true"],
+.sortButton[data-active="true"] span,
+.sortButton:hover {
+  color: #101e32;
+}
+
+.sortButton:focus-visible {
+  outline: 2px solid #2966a8;
+  outline-offset: 3px;
+}
+
 .row {
   position: relative;
   border-top: 1px solid #e5e1da;
@@ -70,7 +102,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 769px) {
   .columns {
     display: none;
   }

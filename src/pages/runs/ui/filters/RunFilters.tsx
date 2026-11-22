@@ -1,24 +1,29 @@
 import type { Ref } from "react";
 import { runStatusLabels } from "../../../../entities/run";
+import { parseRunSort, runSortOptions, type RunSort } from "../../model/filters/runSort";
 import { statusOptions, type StatusFilter } from "../../model/filters/statusFilter";
 import styles from "./RunFilters.module.css";
 
 type RunFiltersProps = {
   searchQuery: string;
   status: StatusFilter;
+  sort: RunSort;
   searchInputRef: Ref<HTMLInputElement>;
   activeStatusRef: Ref<HTMLButtonElement>;
   onSearchChange: (query: string) => void;
   onStatusChange: (status: StatusFilter) => void;
+  onSortChange: (sort: RunSort) => void;
 };
 
 export function RunFilters({
   searchQuery,
   status,
+  sort,
   searchInputRef,
   activeStatusRef,
   onSearchChange,
   onStatusChange,
+  onSortChange,
 }: RunFiltersProps) {
   return (
     <div className={styles.toolbar}>
@@ -43,6 +48,19 @@ export function RunFilters({
             {option === "all" ? "All" : runStatusLabels[option]}
           </button>
         ))}
+      </div>
+      <div className={styles.sortPicker}>
+        <select
+          aria-label="Sort by"
+          value={sort}
+          onChange={(event) => onSortChange(parseRunSort(event.target.value))}
+        >
+          {runSortOptions.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

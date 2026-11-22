@@ -1,18 +1,28 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router";
 import { filterRuns } from "../model/filters/filterRuns";
+import { sortRuns } from "../model/filters/sortRuns";
 import { useRunDetails } from "../model/useRunDetails";
 import { useRunFilters } from "../model/filters/useRunFilters";
 import { useRuns } from "../model/useRuns";
 import { RunFilters } from "./filters/RunFilters";
 import { RunDetailsDialog } from "./details/RunDetailsDialog";
 import { RunList } from "./list/RunList";
+import { RunListHeader } from "./list/RunListHeader";
 import { RunListSkeleton } from "./list/RunListSkeleton";
 import styles from "./RunsPanelContent.module.css";
 
 export function RunsPanelContent() {
-  const { searchQuery, debouncedSearchQuery, updateSearchQuery, status, setStatus, resetFilters } =
-    useRunFilters();
+  const {
+    searchQuery,
+    appliedSearchQuery,
+    updateSearchQuery,
+    status,
+    setStatus,
+    sort,
+    setSort,
+    resetFilters,
+  } = useRunFilters();
   const [searchParams] = useSearchParams();
   const failFirstRequest = searchParams.get("mockError") === "once";
 
@@ -21,8 +31,8 @@ export function RunsPanelContent() {
   const { selectedRun, openRunDetails, closeRunDetails, activeStatusRef, runButtonRef } =
     useRunDetails(runs);
   const visibleRuns = useMemo(
-    () => (runs ? filterRuns(runs, debouncedSearchQuery, status) : []),
-    [runs, debouncedSearchQuery, status],
+    () => (runs ? sortRuns(filterRuns(runs, appliedSearchQuery, status), sort) : []),
+    [runs, appliedSearchQuery, status, sort],
   );
 
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -57,22 +67,27 @@ export function RunsPanelContent() {
     );
   }
 
-  const filters = (
-    <RunFilters
-      searchQuery={searchQuery}
-      status={status}
-      searchInputRef={searchInputRef}
-      activeStatusRef={activeStatusRef}
-      onSearchChange={updateSearchQuery}
-      onStatusChange={setStatus}
-    />
+  const listControls = (
+    <>
+      <RunFilters
+        searchQuery={searchQuery}
+        status={status}
+        sort={sort}
+        searchInputRef={searchInputRef}
+        activeStatusRef={activeStatusRef}
+        onSearchChange={updateSearchQuery}
+        onStatusChange={setStatus}
+        onSortChange={setSort}
+      />
+      <RunListHeader sort={sort} onSortChange={setSort} />
+    </>
   );
 
   if (request.status === "loading") {
     return (
       <>
         <div className={styles.loadingFilters} inert aria-hidden="true">
-          {filters}
+          {listControls}
         </div>
         <RunListSkeleton />
       </>
@@ -81,7 +96,7 @@ export function RunsPanelContent() {
 
   return (
     <>
-      {filters}
+      {listControls}
       {visibleRuns.length > 0 ? (
         <RunList runs={visibleRuns} onOpen={openRunDetails} runButtonRef={runButtonRef} />
       ) : (
