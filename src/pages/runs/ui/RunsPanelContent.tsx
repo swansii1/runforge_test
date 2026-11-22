@@ -15,7 +15,7 @@ import styles from "./RunsPanelContent.module.css";
 
 export function RunsPanelContent() {
   const {
-    searchQuery,
+    draftSearchQuery: searchQuery,
     appliedSearchQuery,
     updateSearchQuery,
     status,
