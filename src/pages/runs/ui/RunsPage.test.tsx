@@ -117,6 +117,7 @@ it("recovers from a failed request when Retry is pressed", async () => {
 it("shows typed text immediately and filters only after a pause following the last change", async () => {
   renderRunsPage();
   const search = await screen.findByRole<HTMLInputElement>("searchbox");
+  const historyLength = window.history.length;
   vi.useFakeTimers();
 
   fireEvent.change(search, { target: { value: "web" } });
@@ -127,22 +128,25 @@ it("shows typed text immediately and filters only after a pause following the la
   expect(search.value).toBe("checkout");
   expect(screen.getAllByRole("listitem")).toHaveLength(6);
 
-  fireEvent.click(screen.getByRole("button", { name: "Failed" }));
   act(() => {
     vi.advanceTimersByTime(299);
   });
-  expect(screen.getAllByRole("listitem")).toHaveLength(2);
+  expect(window.location.search).toBe("");
+  expect(screen.getAllByRole("listitem")).toHaveLength(6);
   act(() => {
     vi.advanceTimersByTime(1);
   });
   expect(within(screen.getByRole("listitem")).getByText("Verify checkout totals")).toBeDefined();
-  expect(window.location.search).toBe("?status=failed");
+  expect(window.location.search).toBe("?search=checkout");
+  expect(window.history.length).toBe(historyLength);
 
   fireEvent.change(search, { target: { value: "" } });
-  expect(screen.getAllByRole("listitem")).toHaveLength(2);
+  expect(window.location.search).toBe("");
+  expect(screen.getAllByRole("listitem")).toHaveLength(6);
 });
 
 it("combines repository and name searches with the status filter and resets both controls", async () => {
+  window.history.replaceState(null, "", "/?source=review");
   renderRunsPage();
 
   const search = await screen.findByRole<HTMLInputElement>("searchbox", { name: "Search runs" });
@@ -171,36 +175,57 @@ it("combines repository and name searches with the status filter and resets both
   act(() => {
     vi.advanceTimersByTime(300);
   });
+  expect(window.location.search).toBe("?source=review");
   expect(screen.getAllByRole("listitem")).toHaveLength(6);
 });
 
-it("restores the linked status and follows browser back and forward with a local search", async () => {
-  window.history.replaceState(null, "", "/?source=review&status=failed");
+it("opens a shared search and restores the query, status and results on Back and Forward", async () => {
+  const sharedUrl = "?source=review&status=failed&search=payments";
+  window.history.replaceState(null, "", "/" + sharedUrl);
   renderRunsPage();
 
   const search = await screen.findByRole<HTMLInputElement>("searchbox");
+  expect(search.value).toBe("payments");
   expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
-  expect(screen.getAllByRole("listitem")).toHaveLength(2);
+  expect(within(screen.getByRole("listitem")).getByText("Verify checkout totals")).toBeDefined();
 
   fireEvent.change(search, { target: { value: "web-platform" } });
-  await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(1));
-  expect(window.location.search).toBe("?source=review&status=failed");
-  expect(within(screen.getByRole("listitem")).getByText("Check keyboard navigation")).toBeDefined();
-
   fireEvent.click(screen.getByRole("button", { name: "Running" }));
-  expect(window.location.search).toBe("?source=review&status=running");
+  const runningUrl = "?source=review&status=running&search=web-platform";
+  expect(window.location.search).toBe(runningUrl);
   expect(within(screen.getByRole("listitem")).getByText("Refactor sign-in form")).toBeDefined();
 
   window.history.back();
   await screen.findByRole("button", { name: "Failed", pressed: true });
-  expect(within(screen.getByRole("listitem")).getByText("Check keyboard navigation")).toBeDefined();
+  expect(search.value).toBe("payments");
+  expect(window.location.search).toBe(sharedUrl);
+  expect(within(screen.getByRole("listitem")).getByText("Verify checkout totals")).toBeDefined();
   window.history.forward();
   await screen.findByRole("button", { name: "Running", pressed: true });
   expect(within(screen.getByRole("listitem")).getByText("Refactor sign-in form")).toBeDefined();
   expect(search.value).toBe("web-platform");
+  expect(window.location.search).toBe(runningUrl);
 
-  fireEvent.click(screen.getByRole("button", { name: "All" }));
-  expect(window.location.search).toBe("?source=review");
+  fireEvent.change(search, { target: { value: "   " } });
+  expect(window.location.search).toBe("?source=review&status=running");
+});
+
+it("discards pending input when going Back between entries with the same search", async () => {
+  window.history.replaceState(null, "", "/?search=check");
+  renderRunsPage();
+  const search = await screen.findByRole<HTMLInputElement>("searchbox");
+  fireEvent.click(screen.getByRole("button", { name: "Failed" }));
+  vi.useFakeTimers();
+  fireEvent.change(search, { target: { value: "stale" } });
+  window.history.back();
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(10);
+  });
+  expect(search.value).toBe("check");
+  act(() => {
+    vi.advanceTimersByTime(300);
+  });
+  expect(window.location.search).toBe("?search=check");
   expect(screen.getAllByRole("listitem")).toHaveLength(3);
 });
 
@@ -249,7 +274,7 @@ describe("run details dialog", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(dialog.isConnected).toBe(false);
     expect(search.value).toBe("payments");
-    expect(window.location.search).toBe("?status=failed");
+    expect(window.location.search).toBe("?status=failed&search=payments");
     expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
     expect(within(screen.getByRole("listitem")).getByText("Verify checkout totals")).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Verify checkout totals" }));
@@ -361,7 +386,8 @@ describe("run details dialog", () => {
       window.history.back();
       const activeFilter = await screen.findByRole("button", { name: "Running", pressed: true });
       expect(document.activeElement).toBe(activeFilter);
-      if (query) await screen.findByText("No matching runs");
+      expect(screen.getByRole<HTMLInputElement>("searchbox").value).toBe("");
+      expect(within(screen.getByRole("listitem")).getByText("Refactor sign-in form")).toBeDefined();
       expect(screen.queryByRole("button", runButton)).toBeNull();
       expect(screen.queryByRole("dialog")).toBeNull();
 

@@ -11,7 +11,7 @@ import { RunListSkeleton } from "./list/RunListSkeleton";
 import styles from "./RunsPanelContent.module.css";
 
 export function RunsPanelContent() {
-  const { searchQuery, debouncedSearchQuery, updateSearchQuery, status, setStatus, resetFilters } =
+  const { searchQuery, appliedSearchQuery, updateSearchQuery, status, setStatus, resetFilters } =
     useRunFilters();
   const [searchParams] = useSearchParams();
   const failFirstRequest = searchParams.get("mockError") === "once";
@@ -21,8 +21,8 @@ export function RunsPanelContent() {
   const { selectedRun, openRunDetails, closeRunDetails, activeStatusRef, runButtonRef } =
     useRunDetails(runs);
   const visibleRuns = useMemo(
-    () => (runs ? filterRuns(runs, debouncedSearchQuery, status) : []),
-    [runs, debouncedSearchQuery, status],
+    () => (runs ? filterRuns(runs, appliedSearchQuery, status) : []),
+    [runs, appliedSearchQuery, status],
   );
 
   const searchInputRef = useRef<HTMLInputElement>(null);
