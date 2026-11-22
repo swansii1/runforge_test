@@ -145,8 +145,24 @@ it("shows typed text immediately and filters only after a pause following the la
   expect(screen.getAllByRole("listitem")).toHaveLength(6);
 });
 
+it("keeps the full list when the search is cleared before its first update", async () => {
+  renderRunsPage();
+  const search = await screen.findByRole<HTMLInputElement>("searchbox");
+  vi.useFakeTimers();
+
+  fireEvent.change(search, { target: { value: "checkout" } });
+  fireEvent.change(search, { target: { value: "" } });
+  act(() => {
+    vi.advanceTimersByTime(300);
+  });
+
+  expect(search.value).toBe("");
+  expect(window.location.search).toBe("");
+  expect(screen.getAllByRole("listitem")).toHaveLength(6);
+});
+
 it("combines repository and name searches with the status filter and resets both controls", async () => {
-  window.history.replaceState(null, "", "/?source=review");
+  window.history.replaceState(null, "", "/?source=review&sort=duration-asc");
   renderRunsPage();
 
   const search = await screen.findByRole<HTMLInputElement>("searchbox", { name: "Search runs" });
@@ -175,7 +191,10 @@ it("combines repository and name searches with the status filter and resets both
   act(() => {
     vi.advanceTimersByTime(300);
   });
-  expect(window.location.search).toBe("?source=review");
+  expect(window.location.search).toBe("?source=review&sort=duration-asc");
+  expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "Sort by" }).value).toBe(
+    "duration-asc",
+  );
   expect(screen.getAllByRole("listitem")).toHaveLength(6);
 });
 
@@ -235,6 +254,84 @@ it("shows all runs for an unknown status", async () => {
 
   await screen.findByRole("button", { name: "All", pressed: true });
   expect(screen.getAllByRole("listitem")).toHaveLength(6);
+});
+
+it("opens a sorted link and restores the sort and pending search together across history", async () => {
+  const sharedUrl = "?status=failed&search=check&sort=duration-asc&source=review";
+  window.history.replaceState(null, "", "/" + sharedUrl);
+  renderRunsPage();
+  const list = await screen.findByRole("list", { name: "Runs" });
+  const sort = screen.getByRole<HTMLSelectElement>("combobox", { name: "Sort by" });
+  const search = screen.getByRole<HTMLInputElement>("searchbox");
+  const visibleNames = () =>
+    within(list)
+      .getAllByRole("button")
+      .map((button) => button.textContent);
+
+  expect(sort.value).toBe("duration-asc");
+  expect(visibleNames()).toEqual(["Check keyboard navigation", "Verify checkout totals"]);
+
+  fireEvent.change(search, { target: { value: "payments" } });
+  fireEvent.change(sort, { target: { value: "duration-desc" } });
+  const nextUrl = "?status=failed&search=payments&sort=duration-desc&source=review";
+  expect(window.location.search).toBe(nextUrl);
+  expect(visibleNames()).toEqual(["Verify checkout totals"]);
+
+  window.history.back();
+  await waitFor(() => expect(sort.value).toBe("duration-asc"));
+  expect(window.location.search).toBe(sharedUrl);
+  expect(search.value).toBe("check");
+  expect(visibleNames()).toEqual(["Check keyboard navigation", "Verify checkout totals"]);
+  window.history.forward();
+  await waitFor(() => expect(sort.value).toBe("duration-desc"));
+  expect(window.location.search).toBe(nextUrl);
+  expect(visibleNames()).toEqual(["Verify checkout totals"]);
+
+  fireEvent.change(sort, { target: { value: "created-desc" } });
+  expect(window.location.search).toBe(
+    "?status=failed&search=payments&sort=created-desc&source=review",
+  );
+});
+
+it("falls back to newest first for an unknown sort in a link", async () => {
+  vi.mocked(runApi.getRuns).mockResolvedValue(createMockRuns().reverse());
+  window.history.replaceState(null, "", "/?sort=unknown");
+  renderRunsPage();
+  const list = await screen.findByRole("list", { name: "Runs" });
+  expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "Sort by" }).value).toBe(
+    "created-desc",
+  );
+  expect(within(list).getAllByRole("button")[0].textContent).toBe("Update dashboard dependencies");
+});
+
+it("toggles only Created and Duration in the list header and keeps the URL in sync", async () => {
+  window.history.replaceState(null, "", "/?status=failed&search=check");
+  renderRunsPage();
+  const list = await screen.findByRole("list", { name: "Runs" });
+  const header = within(screen.getByRole("group", { name: "Sort runs" }));
+  const created = header.getByRole("button", { name: /^Created/ });
+  const duration = header.getByRole("button", { name: /^Duration/ });
+  expect(header.getAllByRole("button")).toHaveLength(2);
+
+  function expectFirstRun(name: string, sort: string | null) {
+    expect(within(list).getAllByRole("button")[0].textContent).toBe(name);
+    const params = new URLSearchParams(window.location.search);
+    expect(params.get("sort")).toBe(sort);
+    expect(params.get("status")).toBe("failed");
+    expect(params.get("search")).toBe("check");
+  }
+
+  expectFirstRun("Verify checkout totals", null);
+  fireEvent.click(created);
+  expectFirstRun("Check keyboard navigation", "created-asc");
+  fireEvent.click(created);
+  expectFirstRun("Verify checkout totals", "created-desc");
+  fireEvent.click(duration);
+  expectFirstRun("Check keyboard navigation", "duration-asc");
+  fireEvent.click(duration);
+  expectFirstRun("Verify checkout totals", "duration-desc");
+  fireEvent.click(created);
+  expectFirstRun("Verify checkout totals", "created-desc");
 });
 
 describe("run details dialog", () => {

@@ -1,14 +1,18 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router";
+import { parseRunSort, type RunSort } from "./runSort";
 import { parseStatusFilter, type StatusFilter } from "./statusFilter";
 
 const searchDelayMs = 300;
+
+type SelectionChange = { param: "status" | "sort"; value: string | null };
 
 export function useRunFilters() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const appliedSearchQuery = searchParams.get("search") ?? "";
   const status = parseStatusFilter(searchParams.get("status"));
+  const sort = parseRunSort(searchParams.get("sort"));
   const [searchQuery, setSearchQuery] = useState(appliedSearchQuery);
   const searchTimer = useRef<number | undefined>(undefined);
 
@@ -17,21 +21,23 @@ export function useRunFilters() {
     return () => window.clearTimeout(searchTimer.current);
   }, [location.key, appliedSearchQuery]);
 
-  function applyFilters(query: string, nextStatus?: StatusFilter) {
+  function applyFilters(query: string, selection?: SelectionChange) {
+    window.clearTimeout(searchTimer.current);
     const nextParams = new URLSearchParams(searchParams);
     if (query.trim()) nextParams.set("search", query);
     else nextParams.delete("search");
 
-    if (nextStatus === "all") nextParams.delete("status");
-    else if (nextStatus !== undefined) nextParams.set("status", nextStatus);
+    if (selection) {
+      if (selection.value === null) nextParams.delete(selection.param);
+      else nextParams.set(selection.param, selection.value);
+    }
 
     if (nextParams.toString() !== searchParams.toString()) {
-      setSearchParams(nextParams, { replace: nextStatus === undefined });
+      setSearchParams(nextParams, { replace: selection === undefined });
     }
   }
 
   function updateSearchQuery(query: string) {
-    window.clearTimeout(searchTimer.current);
     setSearchQuery(query);
 
     if (!query.trim()) {
@@ -39,18 +45,21 @@ export function useRunFilters() {
       return;
     }
 
+    window.clearTimeout(searchTimer.current);
     searchTimer.current = window.setTimeout(() => applyFilters(query), searchDelayMs);
   }
 
   function setStatus(nextStatus: StatusFilter) {
-    window.clearTimeout(searchTimer.current);
-    applyFilters(searchQuery, nextStatus);
+    applyFilters(searchQuery, { param: "status", value: nextStatus === "all" ? null : nextStatus });
+  }
+
+  function setSort(nextSort: RunSort) {
+    applyFilters(searchQuery, { param: "sort", value: nextSort });
   }
 
   function resetFilters() {
-    window.clearTimeout(searchTimer.current);
     setSearchQuery("");
-    applyFilters("", "all");
+    applyFilters("", { param: "status", value: null });
   }
 
   return {
@@ -59,6 +68,8 @@ export function useRunFilters() {
     updateSearchQuery,
     status,
     setStatus,
+    sort,
+    setSort,
     resetFilters,
   };
 }

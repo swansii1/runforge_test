@@ -1,5 +1,4 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { RunListHeader } from "./RunListHeader";
 import listStyles from "./RunList.module.css";
 import styles from "./RunListSkeleton.module.css";
 
@@ -33,7 +32,6 @@ export function RunListSkeleton() {
       <p role="status" className={styles.loadingMessage}>
         Loading runs…
       </p>
-      <RunListHeader />
       <ul className={listStyles.list} aria-hidden="true" inert>
         {Array.from({ length: rowCount }, (_, index) => (
           <li key={index} ref={index === 0 ? firstRowRef : undefined} className={listStyles.row}>
