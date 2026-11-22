@@ -167,10 +167,18 @@ it("opens a sorted link and restores the sort and pending search together across
       .map((button) => button.textContent);
 
   expect(sort.value).toBe("duration-asc");
+  expect(Array.from(sort.options, (option) => option.label)).toEqual([
+    "Newest first",
+    "Oldest first",
+    "Shortest first",
+    "Longest first",
+  ]);
+  screen.getByText("Sort by: Shortest first");
   expect(visibleNames()).toEqual(["Check keyboard navigation", "Verify checkout totals"]);
 
   fireEvent.change(search, { target: { value: "payments" } });
   fireEvent.change(sort, { target: { value: "duration-desc" } });
+  screen.getByText("Sort by: Longest first");
   const nextParams = { ...sharedParams, search: "payments", sort: "duration-desc" };
   expect(getRunSearchParams()).toEqual(nextParams);
   expect(visibleNames()).toEqual(["Verify checkout totals"]);

@@ -16,6 +16,17 @@
   cursor: pointer;
 }
 
+.caption {
+  position: absolute;
+  inset-block: 1px;
+  inset-inline: 0.875rem 2.5rem;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  color: var(--text);
+  pointer-events: none;
+}
+
 .picker::after {
   content: "";
   position: absolute;
