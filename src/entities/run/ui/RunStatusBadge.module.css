@@ -1,0 +1,34 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 1rem;
+  background: var(--queued-bg);
+  color: var(--queued-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.badge::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge[data-status="running"] {
+  background: var(--running-bg);
+  color: var(--running-text);
+}
+.badge[data-status="succeeded"] {
+  background: var(--succeeded-bg);
+  color: var(--succeeded-text);
+}
+.badge[data-status="failed"] {
+  background: var(--failed-bg);
+  color: var(--failed-text);
+}

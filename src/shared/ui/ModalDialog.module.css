@@ -1,0 +1,59 @@
+html:has(.dialog:modal) {
+  overflow: hidden;
+}
+
+.dialog {
+  width: min(41rem, calc(100% - 1.5rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+  padding: clamp(1rem, 3vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.dialog::backdrop {
+  background: var(--backdrop);
+}
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.heading {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+}
+.header h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+.closeButton {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 0.5rem;
+  background: var(--surface-muted);
+  color: var(--text);
+  font: 1.55rem/1 var(--font-sans);
+  cursor: pointer;
+}
+.closeButton:hover {
+  background: var(--surface-hover);
+}
+.closeButton:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

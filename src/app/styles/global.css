@@ -1,0 +1,19 @@
+@import "./theme.css";
+
+:root {
+  scrollbar-gutter: stable;
+  --font-sans: Inter, "Segoe UI", system-ui, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--page-bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}

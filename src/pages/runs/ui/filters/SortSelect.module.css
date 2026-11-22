@@ -1,0 +1,77 @@
+.picker {
+  position: relative;
+}
+
+.picker select {
+  display: block;
+  appearance: none;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.875rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.575rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.caption {
+  position: absolute;
+  inset-block: 1px;
+  inset-inline: 0.875rem 2.5rem;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  color: var(--text);
+  pointer-events: none;
+}
+
+.picker::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 1rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: solid var(--text-muted);
+  border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+@supports (appearance: base-select) {
+  .picker select,
+  .picker select::picker(select) {
+    appearance: base-select;
+  }
+
+  .picker select::picker-icon {
+    display: none;
+  }
+
+  .picker select::picker(select) {
+    padding: 0.25rem;
+    margin-block: 0.25rem;
+    border: 1px solid var(--control-border);
+    border-radius: 0.575rem;
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .picker option {
+    min-height: 2.75rem;
+    padding-inline: 0.625rem;
+    border-radius: 0.375rem;
+    font: inherit;
+  }
+
+  .picker option:is(:hover, :focus-visible) {
+    background: var(--surface-hover);
+  }
+
+  .picker option:checked {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}

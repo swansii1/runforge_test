@@ -1,0 +1,138 @@
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(max-content, 1.1fr);
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.searchField {
+  position: relative;
+}
+
+.searchField input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.875rem 0.5rem 2.65rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.575rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.searchField input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.searchField::before,
+.searchField::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.searchField::before {
+  top: calc(50% - 0.525rem);
+  left: 0.9rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.6px solid var(--text-muted);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.searchField::after {
+  top: calc(50% + 0.15rem);
+  left: 1.6rem;
+  width: 0.45rem;
+  height: 1.6px;
+  background: var(--text-muted);
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.statusOptions {
+  display: flex;
+  align-items: stretch;
+}
+
+.statusOptions button {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+  padding: 0.5rem clamp(0.7rem, 1.25vw, 1.25rem);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.statusOptions button + button {
+  margin-inline-start: -1px;
+}
+
+.statusOptions button:first-child {
+  border-radius: 0.575rem 0 0 0.575rem;
+}
+
+.statusOptions button:last-child {
+  border-radius: 0 0.575rem 0.575rem 0;
+}
+
+.statusOptions button:hover {
+  background: var(--surface-hover);
+}
+
+.statusOptions button[aria-pressed="true"] {
+  z-index: 1;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.toolbar :focus-visible {
+  z-index: 2;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.mobileSort {
+  display: none;
+}
+
+@media (max-width: 769px) {
+  .toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0;
+  }
+
+  .statusOptions {
+    gap: 0.2rem;
+  }
+
+  .statusOptions button {
+    padding-inline: 0.2rem;
+    font-size: 0.8125rem;
+  }
+
+  .statusOptions button + button {
+    margin-inline-start: 0;
+  }
+
+  .statusOptions button,
+  .statusOptions button:first-child,
+  .statusOptions button:last-child {
+    border-radius: 0.5rem;
+  }
+
+  .mobileSort {
+    display: block;
+  }
+}
