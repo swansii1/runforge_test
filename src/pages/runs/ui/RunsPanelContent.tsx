@@ -1,5 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useMemo, useRef } from "react";
 import { filterRuns } from "../model/filters/filterRuns";
 import { sortRuns } from "../model/sorting/sortRuns";
 import { useRunDetails } from "../model/useRunDetails";
@@ -24,11 +23,7 @@ export function RunsPanelContent() {
     setSort,
     resetFilters,
   } = useRunFilters();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const failFirstRequest = new URLSearchParams(location.search).get("mockError") === "once";
-
-  const { request, retry } = useRuns({ failFirstRequest });
+  const { request, retry } = useRuns();
   const runs = request.status === "success" ? request.runs : undefined;
   const { selectedRun, openRunDetails, closeRunDetails } = useRunDetails(runs);
   const visibleRuns = useMemo(
@@ -37,28 +32,6 @@ export function RunsPanelContent() {
   );
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const retryPending = useRef(false);
-
-  useLayoutEffect(() => {
-    if (!retryPending.current || request.status === "loading") return;
-    retryPending.current = false;
-    if (request.status !== "success") return;
-
-    if (document.activeElement === document.body) searchInputRef.current?.focus();
-    if (failFirstRequest) {
-      const params = new URLSearchParams(location.search);
-      params.delete("mockError");
-      void navigate(
-        { pathname: location.pathname, search: params.toString(), hash: location.hash },
-        { replace: true, state: location.state },
-      );
-    }
-  }, [request.status, failFirstRequest, location, navigate]);
-
-  function handleRetry() {
-    retryPending.current = true;
-    retry();
-  }
 
   function handleResetFilters() {
     resetFilters();
@@ -69,7 +42,7 @@ export function RunsPanelContent() {
   if (request.status === "loading") {
     listContent = <RunListSkeleton />;
   } else if (request.status === "error") {
-    listContent = <RunListError onRetry={handleRetry} />;
+    listContent = <RunListError onRetry={retry} />;
   } else if (visibleRuns.length === 0) {
     listContent = (
       <div className={styles.message}>
