@@ -47,24 +47,34 @@ it("fills the visible list area with decorative rows while the request is pendin
   expect(placeholders.children).toHaveLength(8);
 });
 
-it("recovers from a failed request when Retry is pressed", async () => {
+it("removes only mockError from the current history entry after Retry succeeds", async () => {
   vi.mocked(runApi.getRuns).mockRestore();
+  const getRuns = vi.spyOn(runApi, "getRuns");
   vi.useFakeTimers();
-  window.history.replaceState(null, "", "/?mockError=once");
+  const filters = { status: "failed", search: "check", sort: "duration-asc", source: "review" };
+  const params = new URLSearchParams({ mockError: "once", ...filters });
+  window.history.replaceState(null, "", `/?${params}#runs`);
+  const historyLength = window.history.length;
   renderRunsPage({ reactStrictMode: true });
 
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
   await act(() => vi.runOnlyPendingTimersAsync());
   const retryButton = within(screen.getByRole("alert")).getByRole("button", { name: "Retry" });
   expect(screen.queryByRole("list", { hidden: true })).toBeNull();
+  getRuns.mockClear();
   retryButton.focus();
   fireEvent.click(retryButton);
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
+  expect(getRunSearchParams().mockError).toBe("once");
   await act(() => vi.runOnlyPendingTimersAsync());
 
   const list = screen.getByRole("list", { name: "Runs" });
-  expect(within(list).getAllByRole("listitem").length).toBeGreaterThanOrEqual(6);
+  expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+  expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
   expect(document.activeElement).toBe(screen.getByRole("searchbox"));
   expect(screen.queryByRole("alert")).toBeNull();
-  expect(getRunSearchParams()).toEqual({ mockError: "once" });
+  expect(getRunSearchParams()).toEqual(filters);
+  expect(window.location.hash).toBe("#runs");
+  expect(window.history.length).toBe(historyLength);
+  expect(getRuns).toHaveBeenCalledTimes(1);
 });

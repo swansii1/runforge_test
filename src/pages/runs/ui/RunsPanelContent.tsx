@@ -1,5 +1,5 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { useSearchParams } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { filterRuns } from "../model/filters/filterRuns";
 import { sortRuns } from "../model/sorting/sortRuns";
 import { useRunDetails } from "../model/useRunDetails";
@@ -23,8 +23,9 @@ export function RunsPanelContent() {
     setSort,
     resetFilters,
   } = useRunFilters();
-  const [searchParams] = useSearchParams();
-  const failFirstRequest = searchParams.get("mockError") === "once";
+  const location = useLocation();
+  const navigate = useNavigate();
+  const failFirstRequest = new URLSearchParams(location.search).get("mockError") === "once";
 
   const { request, retry } = useRuns({ failFirstRequest });
   const runs = request.status === "success" ? request.runs : undefined;
@@ -35,18 +36,26 @@ export function RunsPanelContent() {
   );
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const focusSearchAfterRetry = useRef(false);
+  const retryPending = useRef(false);
 
   useLayoutEffect(() => {
-    if (!focusSearchAfterRetry.current || request.status === "loading") return;
-    focusSearchAfterRetry.current = false;
-    if (request.status === "success" && document.activeElement === document.body) {
-      searchInputRef.current?.focus();
+    if (!retryPending.current || request.status === "loading") return;
+    retryPending.current = false;
+    if (request.status !== "success") return;
+
+    if (document.activeElement === document.body) searchInputRef.current?.focus();
+    if (failFirstRequest) {
+      const params = new URLSearchParams(location.search);
+      params.delete("mockError");
+      void navigate(
+        { pathname: location.pathname, search: params.toString(), hash: location.hash },
+        { replace: true, state: location.state },
+      );
     }
-  }, [request.status]);
+  }, [request.status, failFirstRequest, location, navigate]);
 
   function handleRetry() {
-    focusSearchAfterRetry.current = true;
+    retryPending.current = true;
     retry();
   }
 
