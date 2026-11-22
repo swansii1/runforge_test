@@ -1,4 +1,4 @@
-import { runSortColumns, type RunSort } from "../../model/filters/runSort";
+import { runSortColumns, type RunSort } from "../../model/sorting/runSort";
 import styles from "./RunList.module.css";
 
 type RunListHeaderProps = {

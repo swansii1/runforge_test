@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router";
 import { filterRuns } from "../model/filters/filterRuns";
-import { sortRuns } from "../model/filters/sortRuns";
+import { sortRuns } from "../model/sorting/sortRuns";
 import { useRunDetails } from "../model/useRunDetails";
 import { useRunFilters } from "../model/filters/useRunFilters";
 import { useRuns } from "../model/useRuns";

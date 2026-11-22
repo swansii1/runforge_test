@@ -1,6 +1,6 @@
 import type { Ref } from "react";
 import { runStatusLabels } from "../../../../entities/run";
-import { parseRunSort, runSortOptions, type RunSort } from "../../model/filters/runSort";
+import { parseRunSort, runSortOptions, type RunSort } from "../../model/sorting/runSort";
 import { statusOptions, type StatusFilter } from "../../model/filters/statusFilter";
 import styles from "./RunFilters.module.css";
 
