@@ -55,8 +55,11 @@ export function RunsPanelContent() {
     searchInputRef.current?.focus();
   }
 
-  if (request.status === "error") {
-    return (
+  let listContent;
+  if (request.status === "loading") {
+    listContent = <RunListSkeleton />;
+  } else if (request.status === "error") {
+    listContent = (
       <div className={styles.message} role="alert">
         <p>Couldn’t load runs.</p>
         <button type="button" onClick={handleRetry}>
@@ -64,47 +67,44 @@ export function RunsPanelContent() {
         </button>
       </div>
     );
-  }
-
-  const listControls = (
-    <>
-      <RunFilters
-        searchQuery={searchQuery}
-        status={status}
-        sort={sort}
-        searchInputRef={searchInputRef}
-        onSearchChange={updateSearchQuery}
-        onStatusChange={setStatus}
-        onSortChange={setSort}
-      />
-      <RunListHeader sort={sort} onSortChange={setSort} />
-    </>
-  );
-
-  if (request.status === "loading") {
-    return (
-      <>
-        <div className={styles.loadingFilters} inert aria-hidden="true">
-          {listControls}
-        </div>
-        <RunListSkeleton />
-      </>
+  } else if (visibleRuns.length === 0) {
+    listContent = (
+      <div className={styles.message}>
+        <p role="status">No matching runs</p>
+        <button type="button" onClick={handleResetFilters}>
+          Reset filters
+        </button>
+      </div>
     );
+  } else {
+    listContent = <RunList runs={visibleRuns} onOpen={openRunDetails} />;
   }
 
   return (
     <>
-      {listControls}
-      {visibleRuns.length > 0 ? (
-        <RunList runs={visibleRuns} onOpen={openRunDetails} />
-      ) : (
-        <div className={styles.message}>
-          <p role="status">No matching runs</p>
-          <button type="button" onClick={handleResetFilters}>
-            Reset filters
-          </button>
-        </div>
-      )}
+      <div className={styles.heading}>
+        <h1>Runs</h1>
+        <span className={styles.count} aria-live="polite" aria-atomic="true">
+          {runs && `${visibleRuns.length} of ${runs.length}`}
+        </span>
+      </div>
+      <div className={styles.panel}>
+        {request.status !== "error" && (
+          <div inert={request.status === "loading"} aria-hidden={request.status === "loading"}>
+            <RunFilters
+              searchQuery={searchQuery}
+              status={status}
+              sort={sort}
+              searchInputRef={searchInputRef}
+              onSearchChange={updateSearchQuery}
+              onStatusChange={setStatus}
+              onSortChange={setSort}
+            />
+            <RunListHeader sort={sort} onSortChange={setSort} />
+          </div>
+        )}
+        {listContent}
+      </div>
       {selectedRun && <RunDetailsDialog run={selectedRun} onClose={closeRunDetails} />}
     </>
   );

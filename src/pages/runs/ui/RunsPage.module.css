@@ -1,32 +1,53 @@
 .header {
-  border-bottom: 1px solid #dedbd5;
+  border-bottom: 1px solid var(--border);
 }
 
-.header span,
+.headerInner,
 .page {
-  display: block;
-  width: min(100%, 70rem);
+  width: min(calc(100% - 2 * clamp(1rem, 4vw, 3rem)), 75rem);
   margin-inline: auto;
-  padding-inline: clamp(1rem, 4vw, 3rem);
 }
 
-.header span {
-  padding-block: 0.9rem;
-  font:
-    bold 1.4rem Georgia,
-    serif;
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4.5rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font: bold 1.7rem/1 var(--font-serif);
+  letter-spacing: -0.055em;
+}
+
+.brandMark {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  background: var(--brand-bg);
+  color: white;
+}
+
+.brandMark svg {
+  width: 1.3rem;
+  height: 1.3rem;
 }
 
 .page {
-  padding-block: clamp(1rem, 4vw, 3rem);
-}
-.page h1 {
-  margin: 0 0 1.25rem;
+  padding-block: clamp(2rem, 4vw, 3rem);
 }
 
-.panel {
-  overflow: hidden;
-  border: 1px solid #dedbd5;
-  border-radius: 0.75rem;
-  background: #fffdfa;
+@media (max-width: 769px) {
+  .headerInner {
+    min-height: 3.75rem;
+  }
+
+  .page {
+    padding-block: 1.5rem 2rem;
+  }
 }

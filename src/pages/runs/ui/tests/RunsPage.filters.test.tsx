@@ -64,12 +64,14 @@ it("combines repository and name searches with the status filter and resets both
 
   fireEvent.click(screen.getByRole("button", { name: "Failed" }));
   expect(within(screen.getByRole("listitem")).getByText("Check keyboard navigation")).toBeDefined();
+  screen.getByText(`1 of ${allRunCount}`);
 
   fireEvent.change(search, { target: { value: "checkout" } });
   await screen.findByRole("button", { name: "Verify checkout totals" });
 
   fireEvent.click(screen.getByRole("button", { name: "Succeeded" }));
   expect(screen.getByText("No matching runs")).toBeDefined();
+  screen.getByText(`0 of ${allRunCount}`);
   expect(screen.queryByRole("listitem")).toBeNull();
   vi.useFakeTimers();
   fireEvent.change(search, { target: { value: "payments" } });
@@ -83,6 +85,7 @@ it("combines repository and name searches with the status filter and resets both
   act(() => {
     vi.advanceTimersByTime(300);
   });
+  screen.getByText(`${allRunCount} of ${allRunCount}`);
   expect(getRunSearchParams()).toEqual({ source: "review", sort: "duration-asc" });
   expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "Sort by" }).value).toBe(
     "duration-asc",
