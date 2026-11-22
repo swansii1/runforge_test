@@ -9,7 +9,6 @@ type RunFiltersProps = {
   status: StatusFilter;
   sort: RunSort;
   searchInputRef: Ref<HTMLInputElement>;
-  activeStatusRef: Ref<HTMLButtonElement>;
   onSearchChange: (query: string) => void;
   onStatusChange: (status: StatusFilter) => void;
   onSortChange: (sort: RunSort) => void;
@@ -20,7 +19,6 @@ export function RunFilters({
   status,
   sort,
   searchInputRef,
-  activeStatusRef,
   onSearchChange,
   onStatusChange,
   onSortChange,
@@ -40,7 +38,6 @@ export function RunFilters({
         {statusOptions.map((option) => (
           <button
             key={option}
-            ref={status === option ? activeStatusRef : undefined}
             type="button"
             aria-pressed={status === option}
             onClick={() => onStatusChange(option)}

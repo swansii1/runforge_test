@@ -28,8 +28,7 @@ export function RunsPanelContent() {
 
   const { request, retry } = useRuns({ failFirstRequest });
   const runs = request.status === "success" ? request.runs : undefined;
-  const { selectedRun, openRunDetails, closeRunDetails, activeStatusRef, runButtonRef } =
-    useRunDetails(runs);
+  const { selectedRun, openRunDetails, closeRunDetails } = useRunDetails(runs);
   const visibleRuns = useMemo(
     () => (runs ? sortRuns(filterRuns(runs, appliedSearchQuery, status), sort) : []),
     [runs, appliedSearchQuery, status, sort],
@@ -74,7 +73,6 @@ export function RunsPanelContent() {
         status={status}
         sort={sort}
         searchInputRef={searchInputRef}
-        activeStatusRef={activeStatusRef}
         onSearchChange={updateSearchQuery}
         onStatusChange={setStatus}
         onSortChange={setSort}
@@ -98,7 +96,7 @@ export function RunsPanelContent() {
     <>
       {listControls}
       {visibleRuns.length > 0 ? (
-        <RunList runs={visibleRuns} onOpen={openRunDetails} runButtonRef={runButtonRef} />
+        <RunList runs={visibleRuns} onOpen={openRunDetails} />
       ) : (
         <div className={styles.message}>
           <p role="status">No matching runs</p>
