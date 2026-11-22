@@ -7,6 +7,8 @@ type RunSortSelectProps = {
 };
 
 export function RunSortSelect({ value, onChange }: RunSortSelectProps) {
+  const selectedOption = runSortOptions.find((option) => option.value === value);
+
   return (
     <div className={styles.picker}>
       <select
@@ -20,6 +22,9 @@ export function RunSortSelect({ value, onChange }: RunSortSelectProps) {
           </option>
         ))}
       </select>
+      <span className={styles.caption} aria-hidden="true">
+        Sort by: {selectedOption?.label}
+      </span>
     </div>
   );
 }

@@ -2,16 +2,22 @@ import { runSortColumns, type RunSort } from "../../model/sorting/runSort";
 import styles from "./RunList.module.css";
 
 type RunListHeaderProps = {
-  sort: RunSort;
-  onSortChange: (sort: RunSort) => void;
+  sorting?: { value: RunSort; onChange: (sort: RunSort) => void };
 };
 
-export function RunListHeader({ sort, onSortChange }: RunListHeaderProps) {
+export function RunListHeader({ sorting }: RunListHeaderProps) {
   return (
-    <div className={styles.columns} role="group" aria-label="Sort runs">
+    <div
+      className={styles.columns}
+      role={sorting ? "group" : undefined}
+      aria-label={sorting ? "Sort runs" : undefined}
+      aria-hidden={sorting ? undefined : true}
+    >
       <span aria-hidden="true">Run</span>
       <span aria-hidden="true">Status</span>
       {runSortColumns.map(({ label, initial, reverse }) => {
+        if (!sorting) return <span key={initial.value}>{label}</span>;
+        const sort = sorting.value;
         const active = sort === initial.value || sort === reverse.value;
         const nextSort = sort === initial.value ? reverse.value : initial.value;
         const ascending = sort.endsWith("-asc");
@@ -26,7 +32,7 @@ export function RunListHeader({ sort, onSortChange }: RunListHeaderProps) {
             data-active={active}
             aria-label={`${label}${state}. ${action}`}
             title={action}
-            onClick={() => onSortChange(nextSort)}
+            onClick={() => sorting.onChange(nextSort)}
           >
             {label}
             <span aria-hidden="true">{active ? (ascending ? "↑" : "↓") : "↕"}</span>
