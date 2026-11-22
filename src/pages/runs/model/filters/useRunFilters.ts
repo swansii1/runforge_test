@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router";
-import { parseRunSort, type RunSort } from "./runSort";
+import { parseRunSort, type RunSort } from "../sorting/runSort";
 import { parseStatusFilter, type StatusFilter } from "./statusFilter";
 
 const searchDelayMs = 300;
