@@ -21,7 +21,7 @@ describe("run details dialog", () => {
     Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
   });
 
-  it("opens the selected run and keeps the filtered list after the dialog closes", async () => {
+  it("keeps the filtered list after Close and reopens the same run", async () => {
     window.history.replaceState(null, "", "/?status=failed&search=payments");
     renderRunsPage();
     const run = { name: "Verify checkout totals" };
@@ -42,7 +42,9 @@ describe("run details dialog", () => {
     );
     expect(getRunSearchParams()).toEqual({ status: "failed", search: "payments" });
     expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
-    expect(within(screen.getByRole("listitem")).getByRole("button", run)).toBeDefined();
+
+    fireEvent.click(within(screen.getByRole("listitem")).getByRole("button", run));
+    expect(screen.getByRole<HTMLDialogElement>("dialog", run).open).toBe(true);
   });
 
   it("keeps details open when a pending search hides the row", async () => {
