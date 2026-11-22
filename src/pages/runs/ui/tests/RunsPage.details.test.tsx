@@ -28,12 +28,6 @@ describe("run details dialog", () => {
     fireEvent.click(await screen.findByRole("button", run));
 
     const dialog = screen.getByRole("dialog", run);
-    expect(
-      within(dialog).getByText("Loaded checkout fixtures.", { exact: false }).textContent,
-    ).toBe("Loaded checkout fixtures.\nExpected total 19.99, received 20.00.\nOne test failed.");
-    expect(
-      within(dialog).getByText("Checkout rounds the discounted total incorrectly."),
-    ).toBeDefined();
     fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -45,6 +39,30 @@ describe("run details dialog", () => {
 
     fireEvent.click(within(screen.getByRole("listitem")).getByRole("button", run));
     expect(screen.getByRole<HTMLDialogElement>("dialog", run).open).toBe(true);
+  });
+
+  it("shows the result before the numbered log lines", async () => {
+    renderRunsPage();
+    const run = { name: "Verify checkout totals" };
+    fireEvent.click(await screen.findByRole("button", run));
+
+    const dialog = within(screen.getByRole("dialog", run));
+    const headings = dialog.getAllByRole("heading", { level: 3 });
+    expect(headings.map((heading) => heading.textContent)).toEqual(["Result", "Logs"]);
+    dialog.getByText("Checkout rounds the discounted total incorrectly.");
+
+    const logRows = within(dialog.getByRole("list", { name: "Logs" })).getAllByRole("listitem");
+    const expectedLogs = [
+      ["01", "Loaded checkout fixtures."],
+      ["02", "Expected total 19.99, received 20.00."],
+      ["03", "One test failed."],
+    ];
+    expect(logRows).toHaveLength(expectedLogs.length);
+    expectedLogs.forEach(([number, message], index) => {
+      const row = within(logRows[index]);
+      row.getByText(number);
+      row.getByText(message);
+    });
   });
 
   it("keeps details open when a pending search hides the row", async () => {
@@ -60,6 +78,8 @@ describe("run details dialog", () => {
     });
     expect(screen.queryByRole("button", run)).toBeNull();
     const dialog = screen.getByRole("dialog", run);
+    expect(within(dialog).queryByRole("heading", { name: "Result" })).toBeNull();
+    within(dialog).getByText("Waiting for an available worker.");
     fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
