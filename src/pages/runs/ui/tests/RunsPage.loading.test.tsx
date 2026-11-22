@@ -29,22 +29,14 @@ it("shows loading and renders all runs with distinct zero and missing durations"
   expect(within(dependenciesRow).getByText("—")).toBeDefined();
 });
 
-it("fills the visible list area with decorative rows while the request is pending", () => {
+it("shows six decorative rows while announcing loading to screen readers", () => {
   vi.mocked(runApi.getRuns).mockReturnValue(createPendingRunsRequest().promise);
-  vi.stubGlobal("innerHeight", 481);
-  vi.spyOn(HTMLLIElement.prototype, "getBoundingClientRect").mockReturnValue(
-    new DOMRect(0, 160, 900, 80),
-  );
   renderRunsPage();
 
   const placeholders = screen.getByRole("list", { hidden: true });
-  expect(placeholders.children).toHaveLength(5);
+  expect(placeholders.children).toHaveLength(6);
   expect(screen.queryByRole("list")).toBeNull();
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
-
-  vi.stubGlobal("innerHeight", 800);
-  fireEvent(window, new Event("resize"));
-  expect(placeholders.children).toHaveLength(8);
 });
 
 it("removes only mockError from the current history entry and preserves focus after Retry", async () => {
