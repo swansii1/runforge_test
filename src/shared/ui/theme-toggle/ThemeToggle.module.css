@@ -1,0 +1,26 @@
+.toggle {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.toggle svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.toggle:hover {
+  background: var(--surface-muted);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}

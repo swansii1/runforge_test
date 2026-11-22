@@ -15,7 +15,9 @@ export function RunListSkeleton() {
       const { top, height } = row.getBoundingClientRect();
       if (height === 0) return;
       const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      setRowCount(Math.max(1, Math.ceil((viewportBottom - top) / height)));
+      const list = row.parentElement;
+      const gap = list ? parseFloat(getComputedStyle(list).rowGap) || 0 : 0;
+      setRowCount(Math.max(1, Math.ceil((viewportBottom - top + gap) / (height + gap))));
     };
 
     updateRowCount();
@@ -35,18 +37,18 @@ export function RunListSkeleton() {
       <ul className={listStyles.list} aria-hidden="true" inert>
         {Array.from({ length: rowCount }, (_, index) => (
           <li key={index} ref={index === 0 ? firstRowRef : undefined} className={listStyles.row}>
-            <div className={styles.identity}>
-              <span className={styles.name} />
-              <span className={styles.repository} />
-            </div>
+            <span className={styles.name} />
+            <span className={styles.repository} />
             <span className={styles.status} />
-            <div>
-              <span className={listStyles.label}>Created</span>
-              <span className={styles.date} />
-            </div>
-            <div>
-              <span className={listStyles.label}>Duration</span>
-              <span className={styles.duration} />
+            <div className={listStyles.metadata}>
+              <div className={listStyles.created}>
+                <span className={listStyles.label}>Created</span>
+                <span className={styles.date} />
+              </div>
+              <div className={listStyles.duration}>
+                <span className={listStyles.label}>Duration</span>
+                <span className={styles.duration} />
+              </div>
             </div>
           </li>
         ))}

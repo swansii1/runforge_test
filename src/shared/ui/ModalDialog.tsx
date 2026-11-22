@@ -3,6 +3,7 @@ import styles from "./ModalDialog.module.css";
 
 type ModalDialogProps = {
   title: string;
+  badge?: ReactNode;
   onClose: () => void;
   children: ReactNode;
 };
@@ -15,7 +16,7 @@ function isBackdropEvent(event: MouseEvent<HTMLDialogElement>) {
   );
 }
 
-export function ModalDialog({ title, onClose, children }: ModalDialogProps) {
+export function ModalDialog({ title, badge, onClose, children }: ModalDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pressedBackdrop = useRef(false);
   const titleId = useId();
@@ -40,7 +41,10 @@ export function ModalDialog({ title, onClose, children }: ModalDialogProps) {
       }}
     >
       <header className={styles.header}>
-        <h2 id={titleId}>{title}</h2>
+        <div className={styles.heading}>
+          {badge}
+          <h2 id={titleId}>{title}</h2>
+        </div>
         <button
           className={styles.closeButton}
           type="button"

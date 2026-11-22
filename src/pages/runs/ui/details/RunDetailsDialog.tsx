@@ -10,9 +10,10 @@ type RunDetailsDialogProps = {
 };
 
 export function RunDetailsDialog({ run, onClose }: RunDetailsDialogProps) {
+  const logLines = run.logs.flatMap((entry) => entry.split(/\r\n?|\n/));
+
   return (
-    <ModalDialog title={run.name} onClose={onClose}>
-      <RunStatusBadge status={run.status} />
+    <ModalDialog title={run.name} badge={<RunStatusBadge status={run.status} />} onClose={onClose}>
       <dl className={styles.metadata}>
         <div>
           <dt>Repository</dt>
@@ -33,14 +34,23 @@ export function RunDetailsDialog({ run, onClose }: RunDetailsDialogProps) {
           <dd>{formatDuration(run.durationSeconds)}</dd>
         </div>
       </dl>
-      <h3 className={styles.sectionTitle}>Logs</h3>
-      <pre className={styles.logs}>{run.logs.join("\n")}</pre>
       {run.result && (
-        <section>
+        <section className={styles.result} data-status={run.status}>
           <h3 className={styles.sectionTitle}>Result</h3>
-          <p className={styles.result}>{run.result}</p>
+          <p>{run.result}</p>
         </section>
       )}
+      <h3 className={styles.sectionTitle}>Logs</h3>
+      <ol className={styles.logs} role="list" aria-label="Logs">
+        {logLines.map((line, index) => (
+          <li key={index}>
+            <span className={styles.lineNumber} aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <code>{line}</code>
+          </li>
+        ))}
+      </ol>
     </ModalDialog>
   );
 }

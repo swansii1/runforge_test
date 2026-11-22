@@ -1,7 +1,12 @@
+@import "./theme.css";
+
 :root {
-  font-family: system-ui, sans-serif;
-  color: #101e32;
-  background: #f5f2ec;
+  --font-sans: Inter, "Segoe UI", system-ui, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--page-bg);
 }
 
 * {

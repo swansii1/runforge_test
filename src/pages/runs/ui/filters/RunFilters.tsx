@@ -1,8 +1,9 @@
 import type { Ref } from "react";
 import { runStatusLabels } from "../../../../entities/run";
-import { parseRunSort, runSortOptions, type RunSort } from "../../model/sorting/runSort";
 import { statusOptions, type StatusFilter } from "../../model/filters/statusFilter";
+import type { RunSort } from "../../model/sorting/runSort";
 import styles from "./RunFilters.module.css";
+import { RunSortSelect } from "./RunSortSelect";
 
 type RunFiltersProps = {
   searchQuery: string;
@@ -25,15 +26,16 @@ export function RunFilters({
 }: RunFiltersProps) {
   return (
     <div className={styles.toolbar}>
-      <input
-        ref={searchInputRef}
-        className={styles.search}
-        type="search"
-        aria-label="Search runs"
-        placeholder="Search by name or repository"
-        value={searchQuery}
-        onChange={(event) => onSearchChange(event.target.value)}
-      />
+      <div className={styles.searchField}>
+        <input
+          ref={searchInputRef}
+          type="search"
+          aria-label="Search runs"
+          placeholder="Search by name or repository"
+          value={searchQuery}
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
+      </div>
       <div className={styles.statusOptions} role="group" aria-label="Filter by status">
         {statusOptions.map((option) => (
           <button
@@ -46,18 +48,8 @@ export function RunFilters({
           </button>
         ))}
       </div>
-      <div className={styles.sortPicker}>
-        <select
-          aria-label="Sort by"
-          value={sort}
-          onChange={(event) => onSortChange(parseRunSort(event.target.value))}
-        >
-          {runSortOptions.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+      <div className={styles.mobileSort}>
+        <RunSortSelect value={sort} onChange={onSortChange} />
       </div>
     </div>
   );
