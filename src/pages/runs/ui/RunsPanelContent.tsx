@@ -8,6 +8,7 @@ import { useRuns } from "../model/useRuns";
 import { RunFilters } from "./filters/RunFilters";
 import { RunDetailsDialog } from "./details/RunDetailsDialog";
 import { RunList } from "./list/RunList";
+import { RunListError } from "./list/RunListError";
 import { RunListHeader } from "./list/RunListHeader";
 import { RunListSkeleton } from "./list/RunListSkeleton";
 import styles from "./RunsPanelContent.module.css";
@@ -68,14 +69,7 @@ export function RunsPanelContent() {
   if (request.status === "loading") {
     listContent = <RunListSkeleton />;
   } else if (request.status === "error") {
-    listContent = (
-      <div className={styles.message} role="alert">
-        <p>Couldn’t load runs.</p>
-        <button type="button" onClick={handleRetry}>
-          Retry
-        </button>
-      </div>
-    );
+    listContent = <RunListError onRetry={handleRetry} />;
   } else if (visibleRuns.length === 0) {
     listContent = (
       <div className={styles.message}>
@@ -109,7 +103,7 @@ export function RunsPanelContent() {
               onStatusChange={setStatus}
               onSortChange={setSort}
             />
-            <RunListHeader sort={sort} onSortChange={setSort} />
+            <RunListHeader sorting={{ value: sort, onChange: setSort }} />
           </div>
         )}
         {listContent}

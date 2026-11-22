@@ -59,12 +59,18 @@ it("removes only mockError from the current history entry after Retry succeeds",
 
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
   await act(() => vi.runOnlyPendingTimersAsync());
-  const retryButton = within(screen.getByRole("alert")).getByRole("button", { name: "Retry" });
+  const errorPanel = within(screen.getByRole("alert"));
+  errorPanel.getByRole("heading", { name: "Run list unavailable" });
+  const retryButton = errorPanel.getByRole("button", { name: "Retry" });
+  expect(screen.queryByRole("group", { name: "Sort runs" })).toBeNull();
   expect(screen.queryByRole("list", { hidden: true })).toBeNull();
   getRuns.mockClear();
   retryButton.focus();
   fireEvent.click(retryButton);
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
+  const skeleton = screen.getByRole("list", { hidden: true });
+  expect(skeleton.children.length).toBeGreaterThan(0);
+  expect(skeleton.getAttribute("aria-hidden")).toBe("true");
   expect(getRunSearchParams().mockError).toBe("once");
   await act(() => vi.runOnlyPendingTimersAsync());
 
