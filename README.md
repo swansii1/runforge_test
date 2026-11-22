@@ -2,6 +2,8 @@
 
 Страница запусков AI-агентов на React, TypeScript и Vite. Стили компонентов оформлены через CSS Modules.
 
+[Deploy Runforge](https://runforgetest.vercel.app/?mockError=once)
+
 ## Локальный запуск
 
 Поддерживаемые версии Node.js — `^20.19.0 || ^22.13.0 || >=24.0.0`.
