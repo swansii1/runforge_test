@@ -3,12 +3,12 @@ import { formatDateTimeParts } from "../../../../shared/lib/formatDateTime";
 import { formatDuration } from "../../../../shared/lib/formatDuration";
 import styles from "./RunList.module.css";
 
-type RunListItemProps = {
+type RunRowProps = {
   run: Run;
   onOpen: (id: string) => void;
 };
 
-export function RunListItem({ run, onOpen }: RunListItemProps) {
+export function RunRow({ run, onOpen }: RunRowProps) {
   const { date, time } = formatDateTimeParts(run.createdAt);
 
   return (

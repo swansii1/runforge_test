@@ -2,15 +2,20 @@ import { RunStatusBadge, type Run } from "../../../../entities/run";
 import { formatDateTime } from "../../../../shared/lib/formatDateTime";
 import { formatDuration } from "../../../../shared/lib/formatDuration";
 import { ModalDialog } from "../../../../shared/ui/ModalDialog";
-import styles from "./RunDetailsDialog.module.css";
+import styles from "./DetailsDialog.module.css";
 
-type RunDetailsDialogProps = {
+type DetailsDialogProps = {
   run: Run;
   onClose: () => void;
 };
 
-export function RunDetailsDialog({ run, onClose }: RunDetailsDialogProps) {
-  const logLines = run.logs.flatMap((entry) => entry.split(/\r\n?|\n/));
+function splitLogEntry(entry: string): string[] {
+  const normalized = entry.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+  return normalized.split("\n");
+}
+
+export function DetailsDialog({ run, onClose }: DetailsDialogProps) {
+  const logLines = run.logs.flatMap(splitLogEntry);
 
   return (
     <ModalDialog title={run.name} badge={<RunStatusBadge status={run.status} />} onClose={onClose}>

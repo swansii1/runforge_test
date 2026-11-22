@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import listStyles from "./RunList.module.css";
-import styles from "./RunListSkeleton.module.css";
+import styles from "./LoadingRows.module.css";
 
-export function RunListSkeleton() {
+export function LoadingRows() {
   const firstRowRef = useRef<HTMLLIElement>(null);
   const [rowCount, setRowCount] = useState(1);
 

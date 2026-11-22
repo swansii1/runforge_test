@@ -1,5 +1,5 @@
 import { ThemeToggle } from "../../../shared/ui/theme-toggle/ThemeToggle";
-import { RunsPanelContent } from "./RunsPanelContent";
+import { RunsPanel } from "./RunsPanel";
 import styles from "./RunsPage.module.css";
 
 export function RunsPage() {
@@ -12,7 +12,7 @@ export function RunsPage() {
         </div>
       </header>
       <main className={styles.page}>
-        <RunsPanelContent />
+        <RunsPanel />
       </main>
     </>
   );
