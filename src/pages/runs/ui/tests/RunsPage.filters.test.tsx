@@ -102,11 +102,17 @@ it("opens a shared search and restores the query, status and results on Back and
   expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
   expect(within(screen.getByRole("listitem")).getByText("Verify checkout totals")).toBeDefined();
 
+  vi.useFakeTimers();
   fireEvent.change(search, { target: { value: "web-platform" } });
   fireEvent.click(screen.getByRole("button", { name: "Running" }));
   const runningParams = { ...sharedParams, status: "running", search: "web-platform" };
   expect(getRunSearchParams()).toEqual(runningParams);
+  act(() => {
+    vi.advanceTimersByTime(300);
+  });
+  expect(getRunSearchParams()).toEqual(runningParams);
   expect(within(screen.getByRole("listitem")).getByText("Refactor sign-in form")).toBeDefined();
+  vi.useRealTimers();
 
   window.history.back();
   await screen.findByRole("button", { name: "Failed", pressed: true });
@@ -122,23 +128,34 @@ it("opens a shared search and restores the query, status and results on Back and
   expect(getRunSearchParams()).toEqual({ source: "review", status: "running" });
 });
 
-it("discards pending input when going Back between entries with the same search", async () => {
+it("discards pending input on Back and Forward between entries with the same search", async () => {
   window.history.replaceState(null, "", "/?search=check");
   renderRunsPage();
   const search = await screen.findByRole<HTMLInputElement>("searchbox");
   fireEvent.click(screen.getByRole("button", { name: "Failed" }));
   vi.useFakeTimers();
-  fireEvent.change(search, { target: { value: "stale" } });
+
+  async function waitForNavigationAndDebounce() {
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(search.value).toBe("check");
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+  }
+
+  fireEvent.change(search, { target: { value: "stale-before-back" } });
   window.history.back();
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(10);
-  });
-  expect(search.value).toBe("check");
-  act(() => {
-    vi.advanceTimersByTime(300);
-  });
+  await waitForNavigationAndDebounce();
   expect(getRunSearchParams()).toEqual({ search: "check" });
   expect(screen.getAllByRole("listitem")).toHaveLength(3);
+
+  fireEvent.change(search, { target: { value: "stale-before-forward" } });
+  window.history.forward();
+  await waitForNavigationAndDebounce();
+  expect(getRunSearchParams()).toEqual({ search: "check", status: "failed" });
+  expect(screen.getAllByRole("listitem")).toHaveLength(2);
 });
 
 it("shows all runs for an unknown status", async () => {

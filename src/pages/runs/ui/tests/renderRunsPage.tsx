@@ -13,7 +13,6 @@ export function setupRunsPageTests() {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
-    vi.unstubAllGlobals();
     vi.useRealTimers();
     window.history.replaceState(null, "", "/");
   });

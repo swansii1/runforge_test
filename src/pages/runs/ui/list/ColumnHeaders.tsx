@@ -1,11 +1,11 @@
 import { runSortColumns, type RunSort } from "../../model/sorting/runSort";
 import styles from "./RunList.module.css";
 
-type RunListHeaderProps = {
+type ColumnHeadersProps = {
   sorting?: { value: RunSort; onChange: (sort: RunSort) => void };
 };
 
-export function RunListHeader({ sorting }: RunListHeaderProps) {
+export function ColumnHeaders({ sorting }: ColumnHeadersProps) {
   return (
     <div
       className={styles.columns}

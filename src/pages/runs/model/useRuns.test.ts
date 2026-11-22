@@ -1,4 +1,5 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { afterEach, expect, it, vi } from "vitest";
 import * as runApi from "../../../entities/run";
 import { createMockRuns, createPendingRunsRequest } from "../../../entities/run/testing";
@@ -15,7 +16,7 @@ it.each(["success", "error"])("ignores a late %s from the previous request", asy
   vi.spyOn(runApi, "getRuns")
     .mockReturnValueOnce(firstRequest.promise)
     .mockReturnValueOnce(retryRequest.promise);
-  const { result } = renderHook(() => useRuns({ failFirstRequest: false }));
+  const { result } = renderHook(() => useRuns(), { wrapper: MemoryRouter });
 
   act(() => {
     result.current.retry();

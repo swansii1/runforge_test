@@ -15,7 +15,6 @@
   --log-bg: #0e2034;
   --log-text: #f1f5fa;
   --skeleton: #e0ddd6;
-  --skeleton-highlight: #ece9e2;
   --queued-bg: #eceae5;
   --queued-text: #56554e;
   --running-bg: #e6eff9;
@@ -44,7 +43,6 @@
   --log-bg: #091422;
   --log-text: #edf3fa;
   --skeleton: #293b4c;
-  --skeleton-highlight: #35485a;
   --queued-bg: #303944;
   --queued-text: #d4d8db;
   --running-bg: #203d57;

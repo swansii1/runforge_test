@@ -23,19 +23,13 @@
   letter-spacing: -0.055em;
 }
 
-.brandMark {
-  display: grid;
+.brand::before {
+  content: "";
   width: 2rem;
   height: 2rem;
-  place-items: center;
   border-radius: 0.5rem;
-  background: var(--brand-bg);
-  color: white;
-}
-
-.brandMark svg {
-  width: 1.3rem;
-  height: 1.3rem;
+  background: var(--brand-bg) url("../../../shared/assets/runforge-cloud.svg") center / 1.3rem
+    1.3rem no-repeat;
 }
 
 .page {

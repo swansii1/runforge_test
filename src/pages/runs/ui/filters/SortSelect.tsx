@@ -1,12 +1,12 @@
 import { parseRunSort, runSortOptions, type RunSort } from "../../model/sorting/runSort";
-import styles from "./RunSortSelect.module.css";
+import styles from "./SortSelect.module.css";
 
-type RunSortSelectProps = {
+type SortSelectProps = {
   value: RunSort;
   onChange: (value: RunSort) => void;
 };
 
-export function RunSortSelect({ value, onChange }: RunSortSelectProps) {
+export function SortSelect({ value, onChange }: SortSelectProps) {
   const selectedOption = runSortOptions.find((option) => option.value === value);
 
   return (

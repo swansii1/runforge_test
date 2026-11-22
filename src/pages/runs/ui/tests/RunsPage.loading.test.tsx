@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { assert, expect, it, vi } from "vitest";
 import * as runApi from "../../../../entities/run";
 import { createMockRuns, createPendingRunsRequest } from "../../../../entities/run/testing";
@@ -29,25 +29,17 @@ it("shows loading and renders all runs with distinct zero and missing durations"
   expect(within(dependenciesRow).getByText("—")).toBeDefined();
 });
 
-it("fills the visible list area with decorative rows while the request is pending", () => {
+it("shows six decorative rows while announcing loading to screen readers", () => {
   vi.mocked(runApi.getRuns).mockReturnValue(createPendingRunsRequest().promise);
-  vi.stubGlobal("innerHeight", 481);
-  vi.spyOn(HTMLLIElement.prototype, "getBoundingClientRect").mockReturnValue(
-    new DOMRect(0, 160, 900, 80),
-  );
   renderRunsPage();
 
   const placeholders = screen.getByRole("list", { hidden: true });
-  expect(placeholders.children).toHaveLength(5);
+  expect(placeholders.children).toHaveLength(6);
   expect(screen.queryByRole("list")).toBeNull();
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
-
-  vi.stubGlobal("innerHeight", 800);
-  fireEvent(window, new Event("resize"));
-  expect(placeholders.children).toHaveLength(8);
 });
 
-it("removes only mockError from the current history entry after Retry succeeds", async () => {
+it("removes only mockError from the current history entry and preserves focus after Retry", async () => {
   vi.mocked(runApi.getRuns).mockRestore();
   const getRuns = vi.spyOn(runApi, "getRuns");
   vi.useFakeTimers();
@@ -72,15 +64,44 @@ it("removes only mockError from the current history entry after Retry succeeds",
   expect(skeleton.children.length).toBeGreaterThan(0);
   expect(skeleton.getAttribute("aria-hidden")).toBe("true");
   expect(getRunSearchParams().mockError).toBe("once");
+  const focusDuringRetry = document.activeElement;
   await act(() => vi.runOnlyPendingTimersAsync());
 
   const list = screen.getByRole("list", { name: "Runs" });
   expect(within(list).getAllByRole("listitem")).toHaveLength(2);
   expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
-  expect(document.activeElement).toBe(screen.getByRole("searchbox"));
+  expect(document.activeElement).toBe(focusDuringRetry);
   expect(screen.queryByRole("alert")).toBeNull();
   expect(getRunSearchParams()).toEqual(filters);
   expect(window.location.hash).toBe("#runs");
   expect(window.history.length).toBe(historyLength);
   expect(getRuns).toHaveBeenCalledTimes(1);
+});
+
+it("keeps the latest history entry and the user's focus when Retry finishes", async () => {
+  const historyState = { from: "shared-link" };
+  window.history.replaceState({ usr: historyState }, "", "/?mockError=once&status=succeeded#saved");
+  window.history.pushState(null, "", "/?mockError=once&status=failed");
+  const retryRequest = createPendingRunsRequest();
+  vi.mocked(runApi.getRuns)
+    .mockRejectedValueOnce(new Error("Could not load runs"))
+    .mockReturnValueOnce(retryRequest.promise);
+  renderRunsPage();
+
+  fireEvent.click(await screen.findByRole("button", { name: "Retry" }));
+  const themeButton = screen.getByRole("button", { name: "Switch to dark theme" });
+  themeButton.focus();
+  window.history.back();
+  await waitFor(() => {
+    expect(screen.getByText("Succeeded", { selector: "button" }).getAttribute("aria-pressed")).toBe(
+      "true",
+    );
+  });
+  await act(async () => retryRequest.resolve(createMockRuns()));
+
+  expect(getRunSearchParams()).toEqual({ status: "succeeded" });
+  expect(window.location.hash).toBe("#saved");
+  expect(window.history.state.usr).toEqual(historyState);
+  expect(document.activeElement).toBe(themeButton);
+  expect(runApi.getRuns).toHaveBeenCalledTimes(2);
 });

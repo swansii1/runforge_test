@@ -2,10 +2,10 @@ import type { Ref } from "react";
 import { runStatusLabels } from "../../../../entities/run";
 import { statusOptions, type StatusFilter } from "../../model/filters/statusFilter";
 import type { RunSort } from "../../model/sorting/runSort";
-import styles from "./RunFilters.module.css";
-import { RunSortSelect } from "./RunSortSelect";
+import styles from "./FilterBar.module.css";
+import { SortSelect } from "./SortSelect";
 
-type RunFiltersProps = {
+type FilterBarProps = {
   searchQuery: string;
   status: StatusFilter;
   sort: RunSort;
@@ -15,7 +15,7 @@ type RunFiltersProps = {
   onSortChange: (sort: RunSort) => void;
 };
 
-export function RunFilters({
+export function FilterBar({
   searchQuery,
   status,
   sort,
@@ -23,7 +23,7 @@ export function RunFilters({
   onSearchChange,
   onStatusChange,
   onSortChange,
-}: RunFiltersProps) {
+}: FilterBarProps) {
   return (
     <div className={styles.toolbar}>
       <div className={styles.searchField}>
@@ -49,7 +49,7 @@ export function RunFilters({
         ))}
       </div>
       <div className={styles.mobileSort}>
-        <RunSortSelect value={sort} onChange={onSortChange} />
+        <SortSelect value={sort} onChange={onSortChange} />
       </div>
     </div>
   );
