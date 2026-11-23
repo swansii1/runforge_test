@@ -5,7 +5,7 @@ import { useRunDetails } from "../model/useRunDetails";
 import { useRunFilters } from "../model/filters/useRunFilters";
 import { useRuns } from "../model/useRuns";
 import { FilterBar } from "./filters/FilterBar";
-import { DetailsDialog } from "./details/DetailsDialog";
+import { DetailsDialog } from "./DetailsDialog";
 import { RunResults } from "./list/RunResults";
 import { ColumnHeaders } from "./list/ColumnHeaders";
 import styles from "./RunsPanel.module.css";

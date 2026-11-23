@@ -1,4 +1,5 @@
 export { getRuns } from "./api/getRuns";
+export { RunDetails } from "./ui/run-details/RunDetails";
 export { RunRow } from "./ui/run-row/RunRow";
 export { RunRowSkeleton } from "./ui/run-row/RunRowSkeleton";
 export { RunStatusBadge } from "./ui/RunStatusBadge";

@@ -1,12 +1,10 @@
-import { RunStatusBadge, type Run } from "../../../../entities/run";
 import { formatDateTime } from "../../../../shared/lib/formatDateTime";
 import { formatDuration } from "../../../../shared/lib/formatDuration";
-import { ModalDialog } from "../../../../shared/ui/ModalDialog";
-import styles from "./DetailsDialog.module.css";
+import type { Run } from "../../model/run";
+import styles from "./RunDetails.module.css";
 
-type DetailsDialogProps = {
+type RunDetailsProps = {
   run: Run;
-  onClose: () => void;
 };
 
 function splitLogEntry(entry: string): string[] {
@@ -14,11 +12,11 @@ function splitLogEntry(entry: string): string[] {
   return normalized.split("\n");
 }
 
-export function DetailsDialog({ run, onClose }: DetailsDialogProps) {
+export function RunDetails({ run }: RunDetailsProps) {
   const logLines = run.logs.flatMap(splitLogEntry);
 
   return (
-    <ModalDialog title={run.name} badge={<RunStatusBadge status={run.status} />} onClose={onClose}>
+    <>
       <dl className={styles.metadata}>
         <div>
           <dt>Repository</dt>
@@ -56,6 +54,6 @@ export function DetailsDialog({ run, onClose }: DetailsDialogProps) {
           </li>
         ))}
       </ol>
-    </ModalDialog>
+    </>
   );
 }
