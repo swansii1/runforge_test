@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router";
 import { afterEach, beforeEach, vi } from "vitest";
 import * as runApi from "../../../../entities/run";
 import { createMockRuns } from "../../../../entities/run/testing";
-import { RunsPage } from "../RunsPage";
+import { RunsPanel } from "../RunsPanel";
 
 export function setupRunsPageTests() {
   beforeEach(() => {
@@ -19,7 +19,7 @@ export function setupRunsPageTests() {
 }
 
 export function renderRunsPage(options?: Pick<RenderOptions, "reactStrictMode">) {
-  return render(<RunsPage />, { wrapper: BrowserRouter, ...options });
+  return render(<RunsPanel />, { wrapper: BrowserRouter, ...options });
 }
 
 export function getRunSearchParams() {

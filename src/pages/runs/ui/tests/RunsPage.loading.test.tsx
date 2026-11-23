@@ -1,5 +1,7 @@
-import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { BrowserRouter } from "react-router";
 import { assert, expect, it, vi } from "vitest";
+import { App } from "../../../../app/App";
 import * as runApi from "../../../../entities/run";
 import { createMockRuns, createPendingRunsRequest } from "../../../../entities/run/testing";
 import { getRunSearchParams, renderRunsPage, setupRunsPageTests } from "./renderRunsPage";
@@ -54,12 +56,15 @@ it("removes only mockError from the current history entry and preserves focus af
   const errorPanel = within(screen.getByRole("alert"));
   errorPanel.getByRole("heading", { name: "Run list unavailable" });
   const retryButton = errorPanel.getByRole("button", { name: "Retry" });
+  screen.getByText("Created", { selector: "span" });
+  screen.getByText("Duration", { selector: "span" });
   expect(screen.queryByRole("group", { name: "Sort runs" })).toBeNull();
   expect(screen.queryByRole("list", { hidden: true })).toBeNull();
   getRuns.mockClear();
   retryButton.focus();
   fireEvent.click(retryButton);
   expect(screen.getByRole("status").textContent).toBe("Loading runs…");
+  expect(screen.queryByRole("group", { name: "Sort runs" })).toBeNull();
   const skeleton = screen.getByRole("list", { hidden: true });
   expect(skeleton.children.length).toBeGreaterThan(0);
   expect(skeleton.getAttribute("aria-hidden")).toBe("true");
@@ -69,6 +74,9 @@ it("removes only mockError from the current history entry and preserves focus af
 
   const list = screen.getByRole("list", { name: "Runs" });
   expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+  within(screen.getByRole("group", { name: "Sort runs" })).getByRole("button", {
+    name: /^Duration, sorted ascending/,
+  });
   expect(screen.getByRole("button", { name: "Failed", pressed: true })).toBeDefined();
   expect(document.activeElement).toBe(focusDuringRetry);
   expect(screen.queryByRole("alert")).toBeNull();
@@ -86,7 +94,7 @@ it("keeps the latest history entry and the user's focus when Retry finishes", as
   vi.mocked(runApi.getRuns)
     .mockRejectedValueOnce(new Error("Could not load runs"))
     .mockReturnValueOnce(retryRequest.promise);
-  renderRunsPage();
+  render(<App />, { wrapper: BrowserRouter });
 
   fireEvent.click(await screen.findByRole("button", { name: "Retry" }));
   const themeButton = screen.getByRole("button", { name: "Switch to dark theme" });

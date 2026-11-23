@@ -1,0 +1,161 @@
+.row {
+  composes: grid from "../../run-columns.module.css";
+  position: relative;
+  grid-template-areas:
+    "name status created duration"
+    "repo status created duration";
+  align-content: center;
+  row-gap: 0.35rem;
+  min-height: 5.25rem;
+  padding-block: 1rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.row + .row::before {
+  content: "";
+  position: absolute;
+  inset: 0 0.75rem auto;
+  border-top: 1px solid var(--border);
+}
+
+.openRun {
+  grid-area: name;
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 650 1.05rem/1.35 var(--font-sans);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+/* The title is the keyboard target; its hit area covers the whole row. */
+.openRun::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.openRun:focus-visible {
+  outline: none;
+}
+
+.openRun:focus-visible::after {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .row:has(.openRun:hover) {
+    background: var(--surface-hover);
+  }
+}
+
+.repository {
+  grid-area: repo;
+  color: var(--text-muted);
+  font: 0.83rem/1.45 var(--font-mono);
+}
+
+.status {
+  grid-area: status;
+}
+
+.metadata {
+  display: contents;
+}
+
+.created,
+.duration {
+  font: 0.88rem/1.5 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.created {
+  grid-area: created;
+}
+
+.duration {
+  grid-area: duration;
+}
+
+.timeOfDay {
+  display: block;
+  white-space: nowrap;
+}
+
+.label {
+  position: absolute;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+@media (max-width: 769px) {
+  .row {
+    grid-template-areas:
+      "name status"
+      "repo repo"
+      "metadata metadata";
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.5rem;
+    padding: 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--surface);
+  }
+
+  .row + .row::before {
+    content: none;
+  }
+
+  .openRun::after {
+    border-radius: 0.75rem;
+  }
+
+  .metadata {
+    grid-area: metadata;
+    display: grid;
+    grid-template-areas: "created duration";
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    margin-top: 0.35rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .created,
+  .duration {
+    font: 0.835rem/1.5 var(--font-sans);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .created {
+    padding-right: 0.6rem;
+  }
+
+  .duration {
+    padding-left: 1rem;
+    border-left: 1px solid var(--border);
+  }
+
+  .timeOfDay {
+    display: inline-block;
+  }
+
+  .label {
+    position: static;
+    display: block;
+    clip-path: none;
+    width: auto;
+    height: auto;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+  }
+}

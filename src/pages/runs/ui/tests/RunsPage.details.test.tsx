@@ -65,23 +65,25 @@ describe("run details dialog", () => {
     });
   });
 
-  it("keeps details open when a pending search hides the row", async () => {
+  it("closes details when the search changes the URL, even if the run still matches", async () => {
     renderRunsPage();
     const search = await screen.findByRole("searchbox");
     const run = { name: "Update dashboard dependencies" };
     vi.useFakeTimers();
-    fireEvent.change(search, { target: { value: "payments" } });
+    fireEvent.change(search, { target: { value: "dashboard" } });
     fireEvent.click(screen.getByRole("button", run));
+
+    const dialog = within(screen.getByRole("dialog", run));
+    expect(dialog.queryByRole("heading", { name: "Result" })).toBeNull();
+    dialog.getByText("Waiting for an available worker.");
 
     act(() => {
       vi.advanceTimersByTime(300);
     });
-    expect(screen.queryByRole("button", run)).toBeNull();
-    const dialog = screen.getByRole("dialog", run);
-    expect(within(dialog).queryByRole("heading", { name: "Result" })).toBeNull();
-    within(dialog).getByText("Waiting for an available worker.");
-    fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+    expect(getRunSearchParams()).toEqual({ search: "dashboard" });
     expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", run));
+    screen.getByRole("dialog", run);
   });
 
   it("closes details on Back and Forward and keeps them closed on return", async () => {

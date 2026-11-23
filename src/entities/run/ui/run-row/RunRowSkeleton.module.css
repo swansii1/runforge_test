@@ -1,0 +1,46 @@
+.name,
+.repository,
+.status,
+.date,
+.duration {
+  display: block;
+  max-width: 100%;
+  height: 0.7rem;
+  border-radius: 0.25rem;
+  background: var(--skeleton);
+}
+
+.name {
+  grid-area: name;
+  width: 14rem;
+  height: 0.9rem;
+}
+
+.repository {
+  grid-area: repo;
+  width: 10rem;
+}
+
+.status {
+  grid-area: status;
+  width: 4.75rem;
+  height: 1.5rem;
+  border-radius: 1rem;
+}
+
+.date {
+  width: 8rem;
+}
+
+.duration {
+  width: 2.5rem;
+}
+
+@media (max-width: 769px) {
+  .name,
+  .repository,
+  .date,
+  .duration {
+    margin-block: 0.25rem;
+  }
+}

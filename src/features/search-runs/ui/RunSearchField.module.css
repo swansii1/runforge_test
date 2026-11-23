@@ -1,0 +1,52 @@
+.searchField {
+  position: relative;
+}
+
+.searchField input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.875rem 0.5rem 2.65rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.575rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.searchField input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.searchField :focus-visible {
+  z-index: 2;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.searchField::before,
+.searchField::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.searchField::before {
+  top: calc(50% - 0.525rem);
+  left: 0.9rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.6px solid var(--text-muted);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.searchField::after {
+  top: calc(50% + 0.15rem);
+  left: 1.6rem;
+  width: 0.45rem;
+  height: 1.6px;
+  background: var(--text-muted);
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
