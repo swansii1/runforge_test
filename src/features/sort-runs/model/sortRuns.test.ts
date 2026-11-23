@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { createMockRuns } from "../../../../entities/run/testing";
+import { createMockRuns } from "../../../entities/run/testing";
 import { sortRuns } from "./sortRuns";
 
 const [baseRun] = createMockRuns();
