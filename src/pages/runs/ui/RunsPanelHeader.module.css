@@ -1,0 +1,36 @@
+/* A hidden mobile column header should not leave an empty grid row above Retry. */
+.headerOnly {
+  display: contents;
+}
+
+.columns {
+  composes: grid from "../../../entities/run/run-columns.module.css";
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(max-content, 1.1fr);
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.mobileSort {
+  display: none;
+}
+
+@media (max-width: 769px) {
+  .columns {
+    display: none;
+  }
+
+  .toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0;
+  }
+
+  .mobileSort {
+    display: block;
+  }
+}

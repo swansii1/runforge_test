@@ -1,7 +1,7 @@
 import type { Run } from "../../../../entities/run";
+import { LoadError } from "../../../../shared/ui/load-error/LoadError";
 import type { RunsRequest } from "../../model/useRuns";
 import { RunList } from "./RunList";
-import { LoadError } from "./LoadError";
 import { LoadingRows } from "./LoadingRows";
 import styles from "./RunResults.module.css";
 
@@ -21,7 +21,16 @@ export function RunResults({
   onResetFilters,
 }: RunResultsProps) {
   if (requestStatus === "loading") return <LoadingRows />;
-  if (requestStatus === "error") return <LoadError onRetry={onRetry} />;
+  if (requestStatus === "error") {
+    return (
+      <LoadError
+        title="Run list unavailable"
+        description="Try loading the list again."
+        retryLabel="Retry"
+        onRetry={onRetry}
+      />
+    );
+  }
   if (visibleRuns.length > 0) return <RunList runs={visibleRuns} onOpen={onOpen} />;
 
   return (
