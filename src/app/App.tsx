@@ -1,5 +1,5 @@
 import { RunsPanel } from "../pages/runs";
-import { ThemeToggle } from "../shared/ui/theme-toggle/ThemeToggle";
+import { ThemeToggle } from "../features/toggle-theme";
 import { Header } from "../shared/ui/header/Header";
 import styles from "./App.module.css";
 
