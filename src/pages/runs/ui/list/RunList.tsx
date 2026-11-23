@@ -1,6 +1,5 @@
 import { memo } from "react";
-import type { Run } from "../../../../entities/run";
-import { RunRow } from "./RunRow";
+import { RunRow, type Run } from "../../../../entities/run";
 import styles from "./RunList.module.css";
 
 type RunListProps = {

@@ -1,7 +1,8 @@
-import { RunStatusBadge, type Run } from "../../../../entities/run";
 import { formatDateTimeParts } from "../../../../shared/lib/formatDateTime";
 import { formatDuration } from "../../../../shared/lib/formatDuration";
-import styles from "./RunList.module.css";
+import type { Run } from "../../model/run";
+import { RunStatusBadge } from "../RunStatusBadge";
+import styles from "./RunRow.module.css";
 
 type RunRowProps = {
   run: Run;
