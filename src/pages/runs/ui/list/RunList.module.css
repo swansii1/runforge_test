@@ -4,44 +4,6 @@
   list-style: none;
 }
 
-.columns {
-  composes: grid from "../../../../entities/run/run-columns.module.css";
-  min-height: 2.9rem;
-  background: var(--surface-muted);
-  color: var(--text);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.sortButton {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 2.5rem;
-  padding: 0;
-  border: 0;
-  border-radius: 0.25rem;
-  background: transparent;
-  color: var(--text-muted);
-  font: inherit;
-  cursor: pointer;
-}
-
-.sortButton span {
-  font-size: 1rem;
-}
-
-.sortButton[data-active="true"],
-.sortButton:hover {
-  color: var(--text);
-}
-
-.sortButton:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
 .loadingMessage {
   position: absolute;
   width: 1px;
@@ -52,10 +14,6 @@
 }
 
 @media (max-width: 769px) {
-  .columns {
-    display: none;
-  }
-
   .list {
     display: grid;
     gap: 0.65rem;
