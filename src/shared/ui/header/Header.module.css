@@ -1,0 +1,18 @@
+.header {
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(calc(100% - 2 * clamp(1rem, 4vw, 3rem)), 75rem);
+  min-height: 4.5rem;
+  margin-inline: auto;
+}
+
+@media (max-width: 769px) {
+  .inner {
+    min-height: 3.75rem;
+  }
+}

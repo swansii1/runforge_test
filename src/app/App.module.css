@@ -1,0 +1,28 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font: bold 1.7rem/1 var(--font-serif);
+  letter-spacing: -0.055em;
+}
+
+.brand::before {
+  content: "";
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: var(--brand-bg) url("../shared/assets/runforge-cloud.svg") center / 1.3rem 1.3rem
+    no-repeat;
+}
+
+.page {
+  width: min(calc(100% - 2 * clamp(1rem, 4vw, 3rem)), 75rem);
+  margin-inline: auto;
+  padding-block: clamp(2rem, 4vw, 3rem);
+}
+
+@media (max-width: 769px) {
+  .page {
+    padding-block: 1.5rem 2rem;
+  }
+}

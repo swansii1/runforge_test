@@ -1,1 +1,1 @@
-export { RunsPage } from "./ui/RunsPage";
+export { RunsPanel } from "./ui/RunsPanel";

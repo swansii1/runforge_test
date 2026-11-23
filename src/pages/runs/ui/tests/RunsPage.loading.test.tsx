@@ -1,5 +1,7 @@
-import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { BrowserRouter } from "react-router";
 import { assert, expect, it, vi } from "vitest";
+import { App } from "../../../../app/App";
 import * as runApi from "../../../../entities/run";
 import { createMockRuns, createPendingRunsRequest } from "../../../../entities/run/testing";
 import { getRunSearchParams, renderRunsPage, setupRunsPageTests } from "./renderRunsPage";
@@ -86,7 +88,7 @@ it("keeps the latest history entry and the user's focus when Retry finishes", as
   vi.mocked(runApi.getRuns)
     .mockRejectedValueOnce(new Error("Could not load runs"))
     .mockReturnValueOnce(retryRequest.promise);
-  renderRunsPage();
+  render(<App />, { wrapper: BrowserRouter });
 
   fireEvent.click(await screen.findByRole("button", { name: "Retry" }));
   const themeButton = screen.getByRole("button", { name: "Switch to dark theme" });
